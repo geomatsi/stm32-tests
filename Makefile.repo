@@ -10,11 +10,11 @@ CM3_LIB_DIR = libopencm3
 
 # toolchain
 
-CROSS_COMPILE ?= /home/matsi/devel/tools/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux-2013.05-24/bin/arm-none-linux-gnueabi-
+CROSS_COMPILE ?= /home/matsi/devel/tools/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux-2013.11-33/bin/arm-none-linux-gnueabi
 
-CC = $(CROSS_COMPILE)gcc
-LD = $(CROSS_COMPILE)ld
-OBJCOPY = $(CROSS_COMPILE)objcopy
+CC = $(CROSS_COMPILE)-gcc
+LD = $(CROSS_COMPILE)-ld
+OBJCOPY = $(CROSS_COMPILE)-objcopy
 
 # project files
 
@@ -24,7 +24,7 @@ OBJ_DIR = out
 
 # flags
 
-CFLAGS = -g -O2 -Wall -nostartfiles -nostdlib
+CFLAGS = -g -O2 -Wall
 CFLAGS += -mcpu=cortex-m4 -mthumb -mthumb-interwork
 CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 
@@ -34,26 +34,17 @@ CFLAGS += -I$(CM3_LIB_DIR)/include
 CFLAGS += -DSTM32F4
 
 LDFLAGS = -T$(TARGET)/stm32f4-test.ld
-LIBGCC  = $(shell $(CC) -mthumb -mcpu=cortex-m4 -print-libgcc-file-name)
+
+# external libs
+
+LIBGCC = $(shell $(CC) -mthumb -mcpu=cortex-m4 -print-libgcc-file-name)
+LIBCM3 = $(CM3_LIB_DIR)/lib/libopencm3_stm32f4.a
 
 # project sources
 
 TEST_SRCS += \
-	$(SRC_DIR)/main.c
-
-
-# libopencm3 sources
-
-TEST_SRCS += \
-	$(CM3_LIB_DIR)/lib/cm3/vector.c \
-	$(CM3_LIB_DIR)/lib/stm32/common/gpio_common_all.c \
-	$(CM3_LIB_DIR)/lib/stm32/common/gpio_common_f0234.c \
-	$(CM3_LIB_DIR)/lib/stm32/common/rcc_common_all.c \
-	$(CM3_LIB_DIR)/lib/stm32/f4/pwr.c \
-	$(CM3_LIB_DIR)/lib/stm32/common/flash_common_f234.c \
-	$(CM3_LIB_DIR)/lib/stm32/common/pwr_common_all.c \
-	$(CM3_LIB_DIR)/lib/cm3/assert.c \
-	$(CM3_LIB_DIR)/lib/stm32/f4/rcc.c
+	$(SRC_DIR)/main.c \
+	$(SRC_DIR)/stdlib.c
 
 #
 
@@ -64,10 +55,13 @@ TEST_OBJS := $(addprefix $(OBJ_DIR)/,$(TEST_OBJS))
 
 # rules
 
-all: $(OBJ_DIR)/$(TARGET).elf $(OBJ_DIR)/$(TARGET).hex $(OBJ_DIR)/$(TARGET).bin
+all: libopencm3 $(OBJ_DIR)/$(TARGET).elf $(OBJ_DIR)/$(TARGET).hex $(OBJ_DIR)/$(TARGET).bin
+
+libopencm3:
+	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
 
 $(OBJ_DIR)/$(TARGET).elf: $(TEST_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
-	$(LD) $(LDFLAGS) $(TEST_OBJS) $(LIBGCC) -o $@
+	$(LD) $(LDFLAGS) $(TEST_OBJS) $(LIBCM3) $(LIBGCC) -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -86,4 +80,10 @@ $(OBJ_DIR)/%.o: %.s
 clean:
 	rm -rf $(OBJ_DIR)
 
+distclean:
+	make -C libopencm3 clean
+	rm -rf $(OBJ_DIR)
+
+.PHONY: libopencm3
+.PHONY: distclean
 .PHONY: clean
