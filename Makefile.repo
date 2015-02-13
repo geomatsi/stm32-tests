@@ -83,6 +83,11 @@ $(OBJ_DIR)/%.o: %.s
 	mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) -o $@ $^
 
+flash:
+	st-flash erase
+	sleep 2
+	st-flash write $(OBJ_DIR)/$(TARGET).bin 0x8000000
+
 clean:
 	rm -rf $(OBJ_DIR)
 
