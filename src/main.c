@@ -23,6 +23,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/pwr.h>
 #include <libopencm3/stm32/flash.h>
+#include <stlinky.h>
 
 static void rcc_clock_setup_in_hsi_out_84mhz(void)
 {
@@ -74,6 +75,8 @@ static void gpio_setup(void)
 
 int main(void)
 {
+	char rx[20] = {0};
+	char tx[] = "hello\r\n\0";
 	int i;
 
 	rcc_clock_setup_in_hsi_out_84mhz();
@@ -86,6 +89,13 @@ int main(void)
 		for (i = 0; i < 1000000; i++) {
 			__asm__("nop");
 		}
+
+		if (stlinky_avail(&g_stlinky_term)) {
+			stlinky_rx(&g_stlinky_term, rx, sizeof(rx));
+			tx[0] = rx[0];
+		}
+
+		stlinky_tx(&g_stlinky_term, tx, strlen(tx));
 	}
 
 	return 0;
