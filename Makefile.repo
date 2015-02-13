@@ -47,7 +47,8 @@ LIBSTLINKY= $(STLINKY_LIB_DIR)/libstlinky_stm32f4.a
 
 TEST_SRCS += \
 	$(SRC_DIR)/main.c \
-	$(SRC_DIR)/stdlib.c
+	$(SRC_DIR)/stdlib.c \
+	$(SRC_DIR)/printf.c
 
 #
 

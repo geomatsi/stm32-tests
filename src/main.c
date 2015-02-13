@@ -19,10 +19,14 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <inttypes.h>
+#include <stdio.h>
+
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/pwr.h>
 #include <libopencm3/stm32/flash.h>
+
 #include <stlinky.h>
 
 static void rcc_clock_setup_in_hsi_out_84mhz(void)
@@ -76,8 +80,10 @@ static void gpio_setup(void)
 int main(void)
 {
 	char rx[20] = {0};
-	char tx[] = "hello\r\n\0";
+	char tx[] = "hello";
 	int i;
+
+	printf("start %s ...\n", tx);
 
 	rcc_clock_setup_in_hsi_out_84mhz();
 	gpio_setup();
@@ -95,7 +101,7 @@ int main(void)
 			tx[0] = rx[0];
 		}
 
-		stlinky_tx(&g_stlinky_term, tx, strlen(tx));
+		printf("test: %d <-> %s\n", (int) rx[0], tx);
 	}
 
 	return 0;
