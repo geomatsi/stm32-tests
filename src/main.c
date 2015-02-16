@@ -83,7 +83,7 @@ int main(void)
 	char tx[] = "hello";
 	int i;
 
-	printf("start %s ...\n", tx);
+	printf("%s ...\n", tx);
 
 	rcc_clock_setup_in_hsi_out_84mhz();
 	gpio_setup();
@@ -92,16 +92,14 @@ int main(void)
 
 		gpio_toggle(GPIOA, GPIO5);
 
-		for (i = 0; i < 1000000; i++) {
+		for (i = 0; i < 5000000; i++) {
 			__asm__("nop");
 		}
 
 		if (stlinky_avail(&g_stlinky_term)) {
 			stlinky_rx(&g_stlinky_term, rx, sizeof(rx));
-			tx[0] = rx[0];
+			printf("key pressed: code('%c') = %d\n", (char) rx[0], (int) rx[0]);
 		}
-
-		printf("test: %d <-> %s\n", (int) rx[0], tx);
 	}
 
 	return 0;
