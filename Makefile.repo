@@ -45,21 +45,27 @@ LIBSTLINKY= $(STLINKY_LIB_DIR)/libstlinky_stm32f4.a
 
 # project sources
 
-TEST_SRCS += \
-	$(SRC_DIR)/main.c \
+COMMON_SRCS += \
 	$(SRC_DIR)/stdlib.c \
 	$(SRC_DIR)/printf.c
 
+GPIO_SRCS += $(SRC_DIR)/main_gpio.c
 #
 
-TEST_OBJS := $(TEST_SRCS:.c=.o)
-TEST_OBJS := $(TEST_OBJS:.s=.o)
+COMMON_OBJS := $(COMMON_SRCS:.c=.o)
+COMMON_OBJS := $(addprefix $(OBJ_DIR)/,$(COMMON_OBJS))
 
-TEST_OBJS := $(addprefix $(OBJ_DIR)/,$(TEST_OBJS))
+GPIO_OBJS := $(GPIO_SRCS:.c=.o)
+GPIO_OBJS := $(addprefix $(OBJ_DIR)/,$(GPIO_OBJS))
+
+
+
 
 # rules
 
-all: libstlinky libopencm3 $(OBJ_DIR)/$(TARGET).elf $(OBJ_DIR)/$(TARGET).hex $(OBJ_DIR)/$(TARGET).bin
+all: deps gpio
+
+deps: libstlinky libopencm3
 
 libstlinky:
 	make -C libstlinky CROSS_COMPILE=$(CROSS_COMPILE) TARGET=stm32f4
@@ -67,8 +73,17 @@ libstlinky:
 libopencm3:
 	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
 
-$(OBJ_DIR)/$(TARGET).elf: $(TEST_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
-	$(LD) $(LDFLAGS) $(TEST_OBJS) $(LIBCM3) $(LIBSTLINKY) $(LIBGCC) -o $@
+gpio: $(OBJ_DIR)/gpio.bin
+	cp $(OBJ_DIR)/gpio.bin $(OBJ_DIR)/$(TARGET).bin
+
+spi: $(OBJ_DIR)/spi.bin
+	cp $(OBJ_DIR)/spi.bin $(OBJ_DIR)/$(TARGET).bin
+
+$(OBJ_DIR)/gpio.elf: $(GPIO_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
+	$(LD) $(LDFLAGS) $(GPIO_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBSTLINKY) $(LIBGCC) -o $@
+
+$(OBJ_DIR)/spi.elf: $(SPI_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
+	$(LD) $(LDFLAGS) $(SPI_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBSTLINKY) $(LIBGCC) -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
