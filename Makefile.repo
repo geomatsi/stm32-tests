@@ -7,7 +7,6 @@ TARGET=tests
 # paths to dependencies
 
 CM3_LIB_DIR = libopencm3
-STLINKY_LIB_DIR = libstlinky
 
 # toolchain
 
@@ -31,7 +30,6 @@ CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 
 CFLAGS += -I$(INC_DIR)
 CFLAGS += -I$(CM3_LIB_DIR)/include
-CFLAGS += -I$(STLINKY_LIB_DIR)/include
 
 CFLAGS += -DSTM32F4
 
@@ -41,15 +39,18 @@ LDFLAGS = -T$(TARGET)/stm32f4-test.ld
 
 LIBGCC = $(shell $(CC) -mthumb -mcpu=cortex-m4 -print-libgcc-file-name)
 LIBCM3 = $(CM3_LIB_DIR)/lib/libopencm3_stm32f4.a
-LIBSTLINKY= $(STLINKY_LIB_DIR)/libstlinky_stm32f4.a
 
 # project sources
 
 COMMON_SRCS += \
-	$(SRC_DIR)/stdlib.c \
-	$(SRC_DIR)/printf.c
+	$(SRC_DIR)/stdlib.c
 
 GPIO_SRCS += $(SRC_DIR)/main_gpio.c
+
+UART_SRCS += \
+	$(SRC_DIR)/main_uart.c \
+	$(SRC_DIR)/printf.c
+
 #
 
 COMMON_OBJS := $(COMMON_SRCS:.c=.o)
@@ -58,17 +59,14 @@ COMMON_OBJS := $(addprefix $(OBJ_DIR)/,$(COMMON_OBJS))
 GPIO_OBJS := $(GPIO_SRCS:.c=.o)
 GPIO_OBJS := $(addprefix $(OBJ_DIR)/,$(GPIO_OBJS))
 
-
-
+UART_OBJS := $(UART_SRCS:.c=.o)
+UART_OBJS := $(addprefix $(OBJ_DIR)/,$(UART_OBJS))
 
 # rules
 
-all: deps gpio
+all: deps gpio uart
 
-deps: libstlinky libopencm3
-
-libstlinky:
-	make -C libstlinky CROSS_COMPILE=$(CROSS_COMPILE) TARGET=stm32f4
+deps: libopencm3
 
 libopencm3:
 	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
@@ -76,14 +74,14 @@ libopencm3:
 gpio: $(OBJ_DIR)/gpio.bin
 	cp $(OBJ_DIR)/gpio.bin $(OBJ_DIR)/$(TARGET).bin
 
-spi: $(OBJ_DIR)/spi.bin
-	cp $(OBJ_DIR)/spi.bin $(OBJ_DIR)/$(TARGET).bin
+uart: $(OBJ_DIR)/uart.bin
+	cp $(OBJ_DIR)/uart.bin $(OBJ_DIR)/$(TARGET).bin
 
 $(OBJ_DIR)/gpio.elf: $(GPIO_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
-	$(LD) $(LDFLAGS) $(GPIO_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBSTLINKY) $(LIBGCC) -o $@
+	$(LD) $(LDFLAGS) $(GPIO_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBGCC) -o $@
 
-$(OBJ_DIR)/spi.elf: $(SPI_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
-	$(LD) $(LDFLAGS) $(SPI_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBSTLINKY) $(LIBGCC) -o $@
+$(OBJ_DIR)/uart.elf: $(UART_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
+	$(LD) $(LDFLAGS) $(UART_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBGCC) -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -109,10 +107,8 @@ clean:
 
 distclean:
 	make -C libopencm3 clean
-	make -C libstlinky clean
 	rm -rf $(OBJ_DIR)
 
 .PHONY: libopencm3
-.PHONY: libstlinky
 .PHONY: distclean
 .PHONY: clean

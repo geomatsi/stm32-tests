@@ -25,13 +25,7 @@
 
 #include <inttypes.h>
 
-#include <stlinky.h>
-
-int putchar(int c)
-{
-	char ch = (char) c;
-    return stlinky_tx(&g_stlinky_term, &ch, sizeof(ch));
-}
+extern int putchar(int c);
 
 static void printchar(char **str, int c)
 {
