@@ -45,7 +45,8 @@ LIBCM3 = $(CM3_LIB_DIR)/lib/libopencm3_stm32f4.a
 COMMON_SRCS += \
 	$(SRC_DIR)/stdlib.c
 
-GPIO_SRCS += $(SRC_DIR)/main_gpio.c
+GPIO_SRCS += \
+	$(SRC_DIR)/main_gpio.c
 
 UART_SRCS += \
 	$(SRC_DIR)/main_uart.c \
