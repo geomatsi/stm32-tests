@@ -7,6 +7,7 @@ TARGET=tests
 # paths to dependencies
 
 CM3_LIB_DIR = libopencm3
+NRF24_LIB_DIR = libnrf24
 
 # toolchain
 
@@ -30,6 +31,7 @@ CFLAGS += -mfpu=fpv4-sp-d16 -mfloat-abi=softfp
 
 CFLAGS += -I$(INC_DIR)
 CFLAGS += -I$(CM3_LIB_DIR)/include
+CFLAGS += -I$(NRF24_LIB_DIR)/include
 
 CFLAGS += -DSTM32F4
 
@@ -39,6 +41,7 @@ LDFLAGS = -T$(TARGET)/stm32f4-test.ld
 
 LIBGCC = $(shell $(CC) -mthumb -mcpu=cortex-m4 -print-libgcc-file-name)
 LIBCM3 = $(CM3_LIB_DIR)/lib/libopencm3_stm32f4.a
+LIBNRF24 = $(NRF24_LIB_DIR)/lib/libnrf24_stm32f4.a
 
 # project sources
 
@@ -67,7 +70,10 @@ UART_OBJS := $(addprefix $(OBJ_DIR)/,$(UART_OBJS))
 
 all: deps gpio uart
 
-deps: libopencm3
+deps: libopencm3 libnrf24
+
+libnrf24:
+	make -C libnrf24 CROSS_COMPILE=$(CROSS_COMPILE) TARGET=stm32f4
 
 libopencm3:
 	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
@@ -108,8 +114,10 @@ clean:
 
 distclean:
 	make -C libopencm3 clean
+	make -C libnrf24 clean
 	rm -rf $(OBJ_DIR)
 
 .PHONY: libopencm3
+.PHONY: libnrf24
 .PHONY: distclean
 .PHONY: clean
