@@ -41,34 +41,41 @@ LDFLAGS = -T$(TARGET)/stm32f4-test.ld
 
 LIBGCC = $(shell $(CC) -mthumb -mcpu=cortex-m4 -print-libgcc-file-name)
 LIBCM3 = $(CM3_LIB_DIR)/lib/libopencm3_stm32f4.a
-LIBNRF24 = $(NRF24_LIB_DIR)/lib/libnrf24_stm32f4.a
+LIBNRF24 = $(NRF24_LIB_DIR)/libnrf24_stm32f4.a
 
 # project sources
 
 COMMON_SRCS += \
-	$(SRC_DIR)/stdlib.c
+	$(SRC_DIR)/common/stdlib.c \
+	$(SRC_DIR)/common/printf.c \
+	$(SRC_DIR)/common/clock.c
 
-GPIO_SRCS += \
-	$(SRC_DIR)/main_gpio.c
+LEDS_SRCS += $(SRC_DIR)/leds/main_leds.c
+UART_SRCS += $(SRC_DIR)/uart/main_uart.c
 
-UART_SRCS += \
-	$(SRC_DIR)/main_uart.c \
-	$(SRC_DIR)/printf.c
+RF24CLI_SRCS += \
+	$(SRC_DIR)/rf24cli/radio.c \
+	$(SRC_DIR)/rf24cli/main.c
 
 #
 
 COMMON_OBJS := $(COMMON_SRCS:.c=.o)
 COMMON_OBJS := $(addprefix $(OBJ_DIR)/,$(COMMON_OBJS))
 
-GPIO_OBJS := $(GPIO_SRCS:.c=.o)
-GPIO_OBJS := $(addprefix $(OBJ_DIR)/,$(GPIO_OBJS))
+LEDS_OBJS := $(LEDS_SRCS:.c=.o)
+LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
 
 UART_OBJS := $(UART_SRCS:.c=.o)
 UART_OBJS := $(addprefix $(OBJ_DIR)/,$(UART_OBJS))
 
+RF24CLI_OBJS := $(RF24CLI_SRCS:.c=.o)
+RF24CLI_OBJS := $(addprefix $(OBJ_DIR)/,$(RF24CLI_OBJS))
+
 # rules
 
-all: deps gpio uart
+all: deps bins
+
+bins: leds uart rf24cli
 
 deps: libopencm3 libnrf24
 
@@ -78,17 +85,23 @@ libnrf24:
 libopencm3:
 	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
 
-gpio: $(OBJ_DIR)/gpio.bin
-	cp $(OBJ_DIR)/gpio.bin $(OBJ_DIR)/$(TARGET).bin
+leds: $(OBJ_DIR)/leds.bin
+	cp $(OBJ_DIR)/leds.bin $(OBJ_DIR)/$(TARGET).bin
 
 uart: $(OBJ_DIR)/uart.bin
 	cp $(OBJ_DIR)/uart.bin $(OBJ_DIR)/$(TARGET).bin
 
-$(OBJ_DIR)/gpio.elf: $(GPIO_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
-	$(LD) $(LDFLAGS) $(GPIO_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBGCC) -o $@
+rf24cli: $(OBJ_DIR)/rf24cli.bin
+	cp $(OBJ_DIR)/rf24cli.bin $(OBJ_DIR)/$(TARGET).bin
+
+$(OBJ_DIR)/leds.elf: $(LEDS_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
+	$(LD) $(LDFLAGS) $(LEDS_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBGCC) -o $@
 
 $(OBJ_DIR)/uart.elf: $(UART_OBJS) $(COMMON_OBJS) $(TEST_INCS) $(LIBGCC) $(TARGET)/stm32f4-test.ld
 	$(LD) $(LDFLAGS) $(UART_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBGCC) -o $@
+
+$(OBJ_DIR)/rf24cli.elf: $(RF24CLI_OBJS) $(COMMON_OBJS) $(TARGET)/stm32f4-test.ld
+	$(LD) $(LDFLAGS) $(RF24CLI_OBJS) $(COMMON_OBJS) $(LIBCM3) $(LIBNRF24) -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@

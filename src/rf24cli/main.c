@@ -1,9 +1,7 @@
 /*
- * Based on stm32f4-discovery miniblink example from libopencm3 project
+ * This file is part of the libopencm3 project.
  *
- * Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
- * Copyright (C) 2011 Stephen Caudle <scaudle@doceme.com>
- * Copyright (C) 2015 matsi
+ * Copyright (C) 2010 Gareth McMullin <gareth@blacksphere.co.nz>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,62 +17,24 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/pwr.h>
 #include <libopencm3/stm32/usart.h>
-#include <libopencm3/stm32/flash.h>
 
-static void rcc_clock_setup_in_hsi_out_84mhz(void)
-{
-	/* Enable power control block. */
-	rcc_periph_clock_enable(RCC_PWR);
+#include <RF24.h>
 
-	/* Disable voltage scaling. */
-	pwr_set_vos_scale(SCALE2);
+#include "rf24cli.h"
+#include "clock.h"
 
-	/* Enable internal high-speed oscillator. */
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
+/* */
 
-	/* Select HSI as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
+static struct rf24 *nrf;
 
-	/* Set prescalers for AHB, ADC, ABP1, ABP2. */
-	rcc_set_hpre(RCC_CFGR_HPRE_DIV_NONE);
-	rcc_set_ppre1(RCC_CFGR_PPRE_DIV_2);
-	rcc_set_ppre2(RCC_CFGR_PPRE_DIV_NONE);
-
-	/* */
-	rcc_set_main_pll_hsi(16, 336, 4, 7);
-
-	/* Enable PLL oscillator and wait for it to stabilize. */
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-
-	/* Configure flash settings. */
-	flash_set_ws(FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_2WS);
-
-	/* Select PLL as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-
-	/* Wait for PLL clock to be selected. */
-	rcc_wait_for_sysclk_status(PLL);
-
-	/* Set the peripheral clock frequencies used */
-	rcc_ahb_frequency  = 84000000;
-	rcc_apb1_frequency = 42000000;
-	rcc_apb2_frequency = 84000000;
-}
-
-static void gpio_setup(void)
-{
-	rcc_periph_clock_enable(RCC_GPIOA);
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
-}
+/* */
 
 static void usart_setup(void)
 {
@@ -105,26 +65,53 @@ int putchar(int c)
 	return 0;
 }
 
+/* */
+
+void leds_setup(void)
+{
+	rcc_periph_clock_enable(RCC_GPIOA);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
+}
+
+/* */
+
 int main(void)
 {
-	char msg[] = "hello";
-	int i;
+	uint32_t i = 0;
+	uint8_t val;
 
-	rcc_clock_setup_in_hsi_out_84mhz();
+	/* */
+
+	setup_clocks();
 
 	usart_setup();
-	gpio_setup();
+	leds_setup();
+
+	nrf = radio_init();
+
+	/* */
 
 	while (1) {
 
 		gpio_toggle(GPIOA, GPIO5);
 
-		for (i = 0; i < 5000000; i++) {
-			__asm__("nop");
-		}
+		delay_ms(1000);
 
-		printf("string: %s\r\n", msg);
+		printf("cycle: 0x%08x\r\n", ++i);
+
+		val = rf24_get_status(nrf);
+		printf("rf24_status: 0x%02x\r\n", val);
+
+		val = (uint8_t) rf24_get_data_rate(nrf);
+		printf("data rate = 0x%02x\r\n", val);
+
+		val = rf24_read_register(nrf, 0x5);
+		printf("channel = 0x%02x\r\n", val);
+
+		val = (uint8_t) rf24_get_crc_length(nrf);
+		printf("crc length = 0x%02x\r\n", val);
+
+		val = (uint8_t) rf24_is_p_variant(nrf);
+		printf("model = 0x%02x\r\n\r\n", val);
 	}
-
-	return 0;
 }

@@ -1,9 +1,10 @@
 /*
- * Based on stm32f4-discovery miniblink example from libopencm3 project
+ * This file is part of the libopencm3 project.
  *
  * Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
- * Copyright (C) 2011 Stephen Caudle <scaudle@doceme.com>
- * Copyright (C) 2015 matsi
+ * Copyright (C) 2011 Damjan Marion <damjan.marion@gmail.com>
+ * Copyright (C) 2011 Mark Panajotovic <marko@electrontube.org>
+ * Copyright (C) 2013 Chuck McManis <cmcmanis@mcmanis.com>
  *
  * This library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,13 +20,52 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <inttypes.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/pwr.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
 #include <libopencm3/stm32/flash.h>
+#include <libopencm3/stm32/pwr.h>
+
+/* monotonically increasing number of microseconds from reset
+ * NB: overflows every ~5800 centuries
+ * TODO: need to check if 64bit tick counter is ok
+ */
+
+volatile uint64_t system_micros;
+
+/* define non-empty sys_tick_handler
+ *   - see libopencm3/lib/cm3/vector.c
+ */
+
+/* Called when systick fires */
+void sys_tick_handler(void)
+{
+	system_micros++;
+}
+
+/* Set up a timer to create 1uS ticks. */
+
+static void systick_setup(void)
+{
+	/* clock rate / 1e6 to get 1us interrupt rate */
+	systick_set_reload(84);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_counter_enable();
+
+	/* this done last */
+	systick_interrupt_enable();
+}
+
+/* setup stm32f4-nucleo clock to 84MHz
+ *
+ * TODO
+ *   - unify clock setup for nucleo boards with libopencm3
+ *   - submit patch to libopencm3
+ */
 
 static void rcc_clock_setup_in_hsi_out_84mhz(void)
 {
@@ -69,29 +109,22 @@ static void rcc_clock_setup_in_hsi_out_84mhz(void)
 	rcc_apb2_frequency = 84000000;
 }
 
-static void gpio_setup(void)
+void setup_clocks(void)
 {
-	rcc_periph_clock_enable(RCC_GPIOA);
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
+	rcc_clock_setup_in_hsi_out_84mhz();
+	systick_setup();
 }
 
-int main(void)
+/* delay API */
+
+void delay_us(int delay)
 {
-	char rx[20] = {0};
-	char tx[] = "hello";
-	int i;
+	uint64_t wake = system_micros + (uint64_t) delay;
+	while (wake > system_micros);
+}
 
-	rcc_clock_setup_in_hsi_out_84mhz();
-	gpio_setup();
-
-	while (1) {
-
-		gpio_toggle(GPIOA, GPIO5);
-
-		for (i = 0; i < 5000000; i++) {
-			__asm__("nop");
-		}
-	}
-
-	return 0;
+void delay_ms(int delay)
+{
+	uint64_t wake = system_micros + (uint64_t) (delay*1000);
+	while (wake > system_micros);
 }
