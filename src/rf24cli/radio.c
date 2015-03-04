@@ -58,7 +58,7 @@ static void radio_spi_setup(void)
 
 	/* spi initialization */
 	spi_set_master_mode(SPI1);
-	spi_set_baudrate_prescaler(SPI1, SPI_CR1_BR_FPCLK_DIV_4);
+	spi_set_baudrate_prescaler(SPI1, SPI_CR1_BR_FPCLK_DIV_8);
 	spi_set_clock_polarity_0(SPI1);
 	spi_set_clock_phase_0(SPI1);
 	spi_set_full_duplex_mode(SPI1);
