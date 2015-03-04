@@ -30,13 +30,14 @@
 #include "rf24cli.h"
 
 /*
- *	Connectivity between nRF24L01 and stm32f4-discovery:
- *		MOSI <-> 
- *		MISO <-> 
- *		SCK  <-> 
- *		CSN  <-> 
- *		CE   <-> 
- *		IRQ  <-> 
+ *	Connectivity between nRF24L01 on Wireless Shield v1.0 and
+ *  stm32f401re-nucleo:
+ *		MOSI <-> PA7
+ *		MISO <-> PA6
+ *		SCK  <-> PA5
+ *		CSN  <-> PA9
+ *		CE   <-> PA8
+ *		IRQ  <-> PA10
  *		VCC  <-> 3V
  *		GND  <-> GND
  */
@@ -75,32 +76,33 @@ static void radio_spi_setup(void)
 static void radio_pins_setup(void)
 {
 	/* for nRF24L01 gpio pins */
-	rcc_periph_clock_enable(RCC_GPIOE);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
-	/* disable MEMS (LIS302DL) which is on the same spi */
-	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO3);
-	gpio_set(GPIOE, GPIO3);
+	/* disable RFM69HW on Wireless Shield v1.0 which is on the same spi */
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+	gpio_set(GPIOC, GPIO7);
 
-	/* setup GPIOE pins for nRF24L01 CE, CSN, IRQ */
-	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
-	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
-	gpio_mode_setup(GPIOE, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO6);
+	/* setup GPIOA pins for nRF24L01 on Wireless Shield v1.0: CE, CSN, IRQ */
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO9);
+	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO10);
 
 	/* start with spi communication disabled */
-	gpio_set(GPIOE, GPIO4);
-	gpio_clear(GPIOE, GPIO5);
+	gpio_set(GPIOA, GPIO9);
+	gpio_clear(GPIOA, GPIO8);
 }
 
 /* */
 
 void f_csn(int level)
 {
-	(level > 0) ? gpio_set(GPIOE, GPIO4) : gpio_clear(GPIOE, GPIO4);
+	(level > 0) ? gpio_set(GPIOA, GPIO9) : gpio_clear(GPIOA, GPIO9);
 }
 
 void f_ce(int level)
 {
-	(level > 0) ? gpio_set(GPIOE, GPIO5) : gpio_clear(GPIOE, GPIO5);
+	(level > 0) ? gpio_set(GPIOA, GPIO8) : gpio_clear(GPIOA, GPIO8);
 }
 
 void f_spi_set_speed(int khz)
