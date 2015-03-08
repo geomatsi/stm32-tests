@@ -26,6 +26,7 @@
 #include <libopencm3/stm32/usart.h>
 
 #include <RF24.h>
+#include <nRF24L01.h>
 
 #include "rf24cli.h"
 #include "clock.h"
@@ -77,8 +78,12 @@ void leds_setup(void)
 
 int main(void)
 {
-	uint32_t i = 0;
-	uint8_t val;
+	uint8_t addr[] = {'E', 'F', 'C', 'L', 'I'};
+	uint8_t buf[20];
+
+	uint32_t count = 10;
+	uint8_t status;
+	int ret;
 
 	/* */
 
@@ -89,29 +94,33 @@ int main(void)
 
 	nrf = radio_init();
 
+	while (--count) {
+		printf("countdown: %d sec...\n", count);
+		gpio_toggle(GPIOB, GPIO10);
+		delay_ms(1000);
+	}
+
+	rf24_stop_listening(nrf);
+	rf24_set_payload_size(nrf, sizeof(buf));
+	rf24_set_retries(nrf, 10 /* retry delay 2500us */, 5 /* retries */);
+	rf24_open_writing_pipe(nrf, addr);
+	rf24_power_up(nrf);
+
 	/* */
 
 	while (1) {
 
+		memset(buf, 0x0, sizeof(buf));
+		sprintf((char *) buf, "xmit 0x%08x", count++);
+		printf("xmit buffer: sizeof(%s) = %d\n", buf, sizeof(buf));
+
+		ret = rf24_write(nrf, buf, sizeof(buf));
+		if (ret) {
+			printf("write error: %d\n", ret);
+			status = rf24_flush_tx(nrf);
+		}
+
 		gpio_toggle(GPIOB, GPIO10);
-
-		delay_ms(1000);
-
-		printf("cycle: 0x%08x\r\n", ++i);
-
-		val = rf24_get_status(nrf);
-		printf("rf24_status: 0x%02x\r\n", val);
-
-		val = (uint8_t) rf24_get_data_rate(nrf);
-		printf("data rate = 0x%02x\r\n", val);
-
-		val = rf24_read_register(nrf, 0x5);
-		printf("channel = 0x%02x\r\n", val);
-
-		val = (uint8_t) rf24_get_crc_length(nrf);
-		printf("crc length = 0x%02x\r\n", val);
-
-		val = (uint8_t) rf24_is_p_variant(nrf);
-		printf("model = 0x%02x\r\n\r\n", val);
+		delay_ms(2000);
 	}
 }
