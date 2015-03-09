@@ -181,6 +181,12 @@ static int print(char **out, int *varg)
 
 /* assuming sizeof(void *) == sizeof(int) */
 
+int puts(const char *format)
+{
+	register int *varg = (int *)(&format);
+	return print(0, varg);
+}
+
 int printf(const char *format, ...)
 {
 	register int *varg = (int *)(&format);
