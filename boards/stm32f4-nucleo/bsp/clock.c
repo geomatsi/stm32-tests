@@ -60,7 +60,7 @@ static void systick_setup(void)
 	systick_interrupt_enable();
 }
 
-/* setup stm32f4-nucleo clock to 84MHz
+/* setup stm32f401re-nucleo clock to 84MHz
  *
  * TODO
  *   - unify clock setup for nucleo boards with libopencm3
