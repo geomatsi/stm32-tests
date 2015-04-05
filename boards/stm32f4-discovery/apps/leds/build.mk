@@ -1,34 +1,14 @@
 #
-#
+# example: LEDs blink
 #
 
-ifeq ($(MAKECMDGOALS),discovery-leds)
-
-# Application custom source paths
+## paths
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/bsp
 VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/apps/leds
 
-# Application dependencies
-
-LIBS = $(LIBCM3) $(LIBSTLINKY)
-
-# Application custom include paths
-
-CFLAGS += -I$(PRJ_DIR)/include
-
-# Application custom flags
-
-CFLAGS += -mcpu=cortex-m4 -mfloat-abi=softfp
-CFLAGS += -mthumb -mthumb-interwork
-CFLAGS += -g -O2 -Wall
-
-CFLAGS += -DSTM32F4
-
-LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
-
-# Application sources
+## sources
 
 LEDS_SRCS := \
 	main_leds.c \
@@ -39,9 +19,21 @@ LEDS_SRCS := \
 LEDS_OBJS := $(LEDS_SRCS:.c=.o)
 LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
 
-# Custom build rules
+## deps
 
-discovery-leds: deps $(OBJ_DIR)/leds.bin
+LIBS = $(LIBCM3) $(LIBSTLINKY)
+
+## flags
+
+CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F4
+
+CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC) $(LIBSTLINKY_INC)
+
+LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
+
+## rules
+
+leds: $(OBJ_DIR)/leds.bin
 	cp $(OBJ_DIR)/leds.bin $(OBJ_DIR)/test.bin
 
 %.hex: %.elf
@@ -60,5 +52,3 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) -o $@ $^
-
-endif

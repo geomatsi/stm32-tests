@@ -2,66 +2,67 @@
 #
 #
 
-# Platform definitions
+## Platform definitions
 
-TARGET = stm32f4
-
-# Toolchain
-
-CROSS_COMPILE ?= /home/matsi/devel/tools/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux-2013.11-33/bin/arm-none-linux-gnueabi
-
-CC		= $(CROSS_COMPILE)-gcc
-LD		= $(CROSS_COMPILE)-ld
-OBJCOPY = $(CROSS_COMPILE)-objcopy
+ARCH	= arm
+CHIP	= stm32f4
+PLAT	= stm32f4-nucleo
+# libopencm3 platform name
+LCM3	= stm32/f4
 
 # project and output directories
 
 OBJ_DIR = $(shell pwd)/out
 PRJ_DIR = $(shell pwd)/tests
 
-# dependencies
+## default build target: print info
+
+all: info
+
+info:
+	@echo "ARCH = $(ARCH)"
+	@echo "CHIP = $(CHIP)"
+	@echo "PLAT = $(PLAT)"
+	@echo "BUILD TARGETS = $(TARGETS)"
+
+## dependencies
+
+# libopencm3
 
 CM3_LIB_DIR		= libopencm3
+LIBCM3_INC		= -I$(CM3_LIB_DIR)/include
+LIBCM3			= $(CM3_LIB_DIR)/lib/libopencm3_$(CHIP).a
+
+# libnrf24
+
 NRF24_LIB_DIR	= libnrf24
+LIBNRF24_INC	= -I$(NRF24_LIB_DIR)/include
+LIBNRF24		= $(NRF24_LIB_DIR)/libnrf24_$(CHIP).a
+
+# libstlinky
+
 STLINKY_LIB_DIR	= libstlinky
+LIBSTLINKY_INC	= -I$(STLINKY_LIB_DIR)/include
+LIBSTLINKY		= $(STLINKY_LIB_DIR)/libstlinky_$(CHIP).a
 
-# Common include paths
+## platform specific definitions
 
-CFLAGS += -I$(CM3_LIB_DIR)/include
-CFLAGS += -I$(NRF24_LIB_DIR)/include
-CFLAGS += -I$(STLINKY_LIB_DIR)/include
+include $(PRJ_DIR)/boards/$(PLAT)/platform.mk
 
-# External libraries
-
-LIBCM3		= $(CM3_LIB_DIR)/lib/libopencm3_$(TARGET).a
-LIBNRF24	= $(NRF24_LIB_DIR)/libnrf24_$(TARGET).a
-LIBSTLINKY	= $(STLINKY_LIB_DIR)/libstlinky_$(TARGET).a
-
-# build rules for dependencies
+## build rules for dependencies
 
 deps: libopencm3 libnrf24 libstlinky
 
 libnrf24:
-	make -C libnrf24 CROSS_COMPILE=$(CROSS_COMPILE) TARGET=$(TARGET)
+	make -C libnrf24 CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) PLAT=$(PLAT) PFLAGS="$(PFLAGS)"
 
 libopencm3:
-	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="stm32/f4"
+	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="$(LCM3)"
 
 libstlinky:
-	make -C libstlinky CROSS_COMPILE=$(CROSS_COMPILE) TARGET=stm32f4 CONFIG_FLAGS=-DCONFIG_LIB_PRINTF
+	make -C libstlinky CROSS_COMPILE=$(CROSS_COMPILE) TARGET=$(CHIP) CONFIG_FLAGS=-DCONFIG_LIB_PRINTF
 
-# include main project rules
-
-include $(PRJ_DIR)/root.mk
-
-# flash rules
-
-flash:
-	st-flash erase
-	sleep 2
-	st-flash write $(OBJ_DIR)/test.bin 0x8000000
-
-# clean rules
+## clean rules
 
 clean:
 	rm -rf $(OBJ_DIR)

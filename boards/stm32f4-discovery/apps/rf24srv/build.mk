@@ -1,35 +1,14 @@
 #
-#
+# example: nrf24 radio server
 #
 
-ifeq ($(MAKECMDGOALS),discovery-rf24srv)
-
-# Application custom source paths
+## paths
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/bsp
 VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/apps/rf24srv
 
-# Application dependencies
-
-LIBS = $(LIBCM3) $(LIBNRF24)
-
-# Application custom include paths
-
-CFLAGS += -I$(PRJ_DIR)/include
-CFLAGS += -I$(PRJ_DIR)/apps/rf24srv
-
-# Application custom flags
-
-CFLAGS += -mcpu=cortex-m4 -mfloat-abi=softfp
-CFLAGS += -mthumb -mthumb-interwork
-CFLAGS += -g -O2 -Wall
-
-CFLAGS += -DSTM32F4
-
-LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
-
-# Application sources
+## sources
 
 RF24SRV_SRCS := \
 	main.c \
@@ -41,9 +20,23 @@ RF24SRV_SRCS := \
 RF24SRV_OBJS := $(RF24SRV_SRCS:.c=.o)
 RF24SRV_OBJS := $(addprefix $(OBJ_DIR)/,$(RF24SRV_OBJS))
 
+## deps
+
+LIBS = $(LIBCM3) $(LIBNRF24)
+
+## flags
+
+CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F4
+
+CFLAGS += -I$(PRJ_DIR)/include
+CFLAGS += -I$(PRJ_DIR)/apps/rf24srv
+CFLAGS += $(LIBCM3_INC) $(LIBNRF24_INC)
+
+LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
+
 # Custom build rules
 
-discovery-rf24srv: deps $(OBJ_DIR)/rf24srv.bin
+rf24srv: $(OBJ_DIR)/rf24srv.bin
 	cp $(OBJ_DIR)/rf24srv.bin $(OBJ_DIR)/test.bin
 
 %.hex: %.elf
@@ -62,5 +55,3 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR)/%.o: %.s
 	mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) -o $@ $^
-
-endif
