@@ -54,13 +54,24 @@ include $(PRJ_DIR)/boards/$(PLAT)/platform.mk
 deps: libopencm3 libnrf24 libstlinky
 
 libnrf24:
-	make -C libnrf24 CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(ARCH) PLAT=$(PLAT) PFLAGS="$(PFLAGS)"
+	make -C libnrf24 \
+		CROSS_COMPILE=$(CROSS_COMPILE)	\
+		ARCH=$(ARCH) \
+		PLAT=$(PLAT) \
+		PFLAGS="$(PFLAGS)"
 
 libopencm3:
-	make -C libopencm3 FP_FLAGS="-mfloat-abi=soft" PREFIX=$(CROSS_COMPILE) TARGETS="$(LCM3)"
+	make -C libopencm3 \
+		FP_FLAGS="-mfloat-abi=soft" \
+		PREFIX=$(CROSS_COMPILE) \
+		TARGETS="$(LCM3)"
 
 libstlinky:
-	make -C libstlinky CROSS_COMPILE=$(CROSS_COMPILE) TARGET=$(CHIP) CONFIG_FLAGS=-DCONFIG_LIB_PRINTF
+	make -C libstlinky \
+		CROSS_COMPILE=$(CROSS_COMPILE) \
+		TARGET=$(CHIP) \
+		CFG_FLAGS=-DCONFIG_LIB_PRINTF \
+		PLT_FLAGS="$(PFLAGS)"
 
 ## clean rules
 
