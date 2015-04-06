@@ -5,10 +5,7 @@
 ## Platform definitions
 
 ARCH	= arm
-CHIP	= stm32f4
 PLAT	= stm32f4-nucleo
-# libopencm3 platform name
-LCM3	= stm32/f4
 
 # project and output directories
 
@@ -21,8 +18,9 @@ all: info
 
 info:
 	@echo "ARCH = $(ARCH)"
-	@echo "CHIP = $(CHIP)"
 	@echo "PLAT = $(PLAT)"
+	@echo "CHIP = $(CHIP)"
+	@echo "CHIP_LCM3 = $(CHIP_LCM3)"
 	@echo "BUILD TARGETS = $(TARGETS)"
 
 ## dependencies
@@ -63,7 +61,7 @@ libopencm3:
 	make -C libopencm3 \
 		FP_FLAGS="-mfloat-abi=soft" \
 		PREFIX=$(CROSS_COMPILE) \
-		TARGETS="$(LCM3)"
+		TARGETS="$(CHIP_LCM3)"
 
 libstlinky:
 	make -C libstlinky \
@@ -79,8 +77,8 @@ clean:
 
 distclean:
 	make -C libopencm3 clean
-	make -C libnrf24 clean
-	make -C libstlinky clean
+	make -C libnrf24 TARGET=$(CHIP) clean
+	make -C libstlinky TARGET=$(CHIP) clean
 	rm -rf $(OBJ_DIR)
 
 .PHONY: libopencm3

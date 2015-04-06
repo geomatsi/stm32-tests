@@ -13,6 +13,11 @@ CC		= $(CROSS_COMPILE)-gcc
 LD		= $(CROSS_COMPILE)-ld
 OBJCOPY = $(CROSS_COMPILE)-objcopy
 
+## platform identifiers
+
+CHIP		= stm32f4
+CHIP_LCM3	= stm32/f4
+
 ## platform-specific compile flags
 
 PFLAGS = \
