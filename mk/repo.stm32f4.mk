@@ -56,9 +56,8 @@ deps: libopencm3 libnrf24 libstlinky
 libnrf24:
 	make -C libnrf24 \
 		CROSS_COMPILE=$(CROSS_COMPILE)	\
-		ARCH=$(ARCH) \
-		PLAT=$(PLAT) \
-		PFLAGS="$(PFLAGS)"
+		TARGET=$(CHIP) \
+		PLT_FLAGS="$(PFLAGS)"
 
 libopencm3:
 	make -C libopencm3 \
