@@ -34,7 +34,7 @@
 
 static struct rf24 *nrf;
 
-/* */
+/* UART debug port: RX = PA3 TX = PA2 */
 
 static void usart_setup(void)
 {
