@@ -54,6 +54,7 @@ static void radio_spi_setup(void)
 
 	/* setup GPIO pins for AF5 for SPI1 signals */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO5 | GPIO6 | GPIO7);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,  GPIO5 | GPIO6 | GPIO7);
 	gpio_set_af(GPIOA, GPIO_AF5, GPIO5 | GPIO6 | GPIO7);
 
 	/* spi initialization */
