@@ -28,7 +28,7 @@ PFLAGS = \
 
 ## projects for stm32f4-discovery
 
-TARGETS = "leds mems cdc rf24srv"
+TARGETS = "leds mems cdc rf24srv freertos"
 
 ifeq ($(MAKECMDGOALS), leds)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds/build.mk
@@ -44,6 +44,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), rf24srv)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/rf24srv/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), freertos)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/freertos/build.mk
 endif
 
 ## platform-specific flash rules
