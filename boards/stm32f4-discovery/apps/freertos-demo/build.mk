@@ -8,7 +8,7 @@ FREERTOS_DIR = $(PRJ_DIR)/../FreeRTOSV7.3.0/FreeRTOS
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/bsp
-VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/apps/freertos
+VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/apps/freertos-demo
 
 VPATH += $(FREERTOS_DIR)/Source
 VPATH += $(FREERTOS_DIR)/Source/portable/MemMang
@@ -41,15 +41,15 @@ LIBS = $(LIBCM3)
 CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F4
 
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
-CFLAGS	+= -I$(PRJ_DIR)/boards/$(PLAT)/apps/freertos
+CFLAGS	+= -I$(PRJ_DIR)/boards/$(PLAT)/apps/freertos-demo
 CFLAGS += -I$(FREERTOS_DIR)/Source/include -I$(FREERTOS_DIR)/Source/portable/GCC/ARM_CM4F
 
 LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
 
 ## rules
 
-freertos: $(OBJ_DIR)/freertos.bin
-	cp $(OBJ_DIR)/freertos.bin $(OBJ_DIR)/test.bin
+freertos-demo: $(OBJ_DIR)/freertos-demo.bin
+	cp $(OBJ_DIR)/freertos-demo.bin $(OBJ_DIR)/test.bin
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -57,7 +57,7 @@ freertos: $(OBJ_DIR)/freertos.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/freertos.elf: $(RTOS_OBJS) $(LIBS) $(PRJ_DIR)/ld/stm32f4-discovery.ld
+$(OBJ_DIR)/freertos-demo.elf: $(RTOS_OBJS) $(LIBS) $(PRJ_DIR)/ld/stm32f4-discovery.ld
 	$(LD) $(LDFLAGS) $(RTOS_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
