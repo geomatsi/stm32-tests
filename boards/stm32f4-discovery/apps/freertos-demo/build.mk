@@ -22,6 +22,8 @@ RTOS_SRCS := \
 	init.c \
 	leds.c \
 	button.c \
+	uart.c \
+	printf.c \
 	stdlib.c \
 
 RTOS_SRCS += \

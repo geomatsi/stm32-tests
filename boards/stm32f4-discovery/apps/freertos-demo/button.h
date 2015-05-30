@@ -1,6 +1,8 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include <stdio.h>
+
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/exti.h>
 

@@ -40,6 +40,7 @@ void button_task(void *Parameters)
 
 	while(1) {
 		xQueueReceive(xQueue, &c, 10000);
+		printf("message received: %c\n", c);
 
 		switch (c) {
 			case 'E':
