@@ -18,6 +18,10 @@ VPATH += $(FREERTOS_DIR)/Source/portable/GCC/ARM_CM4F
 
 RTOS_SRCS := \
 	main.c \
+	misc.c \
+	init.c \
+	leds.c \
+	button.c \
 	stdlib.c \
 
 RTOS_SRCS += \
