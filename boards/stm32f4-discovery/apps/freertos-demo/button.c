@@ -15,12 +15,12 @@ void exti0_isr(void)
 
 	if (exti0_falling) {
 		msg = 'D';
-		xQueueSendToFrontFromISR(xQueue, &msg, NULL);
+		xQueueSendToBackFromISR(xQueue, &msg, NULL);
 		exti0_falling = false;
 		exti_set_trigger(EXTI0, EXTI_TRIGGER_RISING);
 	} else {
 		msg = 'E';
-		xQueueSendToFrontFromISR(xQueue, &msg, NULL);
+		xQueueSendToBackFromISR(xQueue, &msg, NULL);
 		exti0_falling = true;
 		exti_set_trigger(EXTI0, EXTI_TRIGGER_FALLING);
 	}
@@ -28,7 +28,12 @@ void exti0_isr(void)
 
 void button_init(void)
 {
-	xQueue = xQueueCreate( 10, sizeof( unsigned char ) );
+	xQueue = xQueueCreate( 128, sizeof( unsigned char ) );
+
+	if (!xQueue) {
+		printf("ERROR: can't create queue\n\r");
+	}
+
 	exti0_falling = false;
 }
 
@@ -39,7 +44,7 @@ void button_task(void *Parameters)
 	gpio_clear(GPIOD, GPIO14);
 
 	while(1) {
-		xQueueReceive(xQueue, &c, 10000);
+		xQueueReceive(xQueue, &c, portMAX_DELAY);
 		printf("message received: %c\n", c);
 
 		switch (c) {

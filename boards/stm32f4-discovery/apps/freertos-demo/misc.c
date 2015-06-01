@@ -19,8 +19,6 @@ void error_blink(uint32_t port, uint16_t pins)
 		gpio_toggle(port, pins);
 		xdelay(0x3fffff);
 	}
-
-	gpio_clear(port, pins);
 }
 
 void test_blink(uint32_t port, uint16_t pins, uint32_t num)
