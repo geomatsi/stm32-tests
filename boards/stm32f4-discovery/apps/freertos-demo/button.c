@@ -2,7 +2,7 @@
 
 /* */
 
-xQueueHandle xQueue;
+QueueHandle_t xQueue;
 bool exti0_falling;
 
 /* */

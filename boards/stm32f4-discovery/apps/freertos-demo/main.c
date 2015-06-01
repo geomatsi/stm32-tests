@@ -25,10 +25,10 @@ int main(void)
 
 	button_init();
 
-	xTaskCreate(leds_task, (signed char *) "led1", configMINIMAL_STACK_SIZE, (void *) &led1, tskIDLE_PRIORITY + 2, NULL);
-	xTaskCreate(leds_task, (signed char *) "led2", configMINIMAL_STACK_SIZE, (void *) &led2, tskIDLE_PRIORITY + 3, NULL);
-	xTaskCreate(leds_task, (signed char *) "led3", configMINIMAL_STACK_SIZE, (void *) &led3, tskIDLE_PRIORITY + 3, NULL);
-	xTaskCreate(button_task, (signed char *) "button", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
+	xTaskCreate(leds_task, (const char *) "led1", configMINIMAL_STACK_SIZE, (void *) &led1, tskIDLE_PRIORITY + 2, NULL);
+	xTaskCreate(leds_task, (const char *) "led2", configMINIMAL_STACK_SIZE, (void *) &led2, tskIDLE_PRIORITY + 3, NULL);
+	xTaskCreate(leds_task, (const char *) "led3", configMINIMAL_STACK_SIZE, (void *) &led3, tskIDLE_PRIORITY + 3, NULL);
+	xTaskCreate(button_task, (const char *) "button", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 	vTaskStartScheduler();
 

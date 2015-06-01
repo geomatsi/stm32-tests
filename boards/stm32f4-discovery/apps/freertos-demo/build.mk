@@ -2,7 +2,7 @@
 # example: FreeRTOS + libopencm3
 #
 
-FREERTOS_DIR = $(PRJ_DIR)/../FreeRTOSV7.3.0/FreeRTOS
+FREERTOS_DIR = $(PRJ_DIR)/../FreeRTOSV8.2.1/FreeRTOS
 
 ## paths
 

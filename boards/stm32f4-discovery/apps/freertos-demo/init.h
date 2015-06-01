@@ -9,6 +9,8 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/scb.h>
 
+#include "FreeRTOSConfig.h"
+
 void hw_init(void);
 
 #endif /* INIT_H */

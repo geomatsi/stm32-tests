@@ -4,7 +4,7 @@ void leds_task(void *Parameters)
 {
 	led_t *leds = (led_t *) Parameters;
 
-	portTickType LastWake;
+	TickType_t LastWake;
 
 	gpio_set(leds->port, leds->pins);
 

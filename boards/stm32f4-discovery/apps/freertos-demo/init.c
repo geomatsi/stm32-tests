@@ -47,6 +47,21 @@ void hw_init(void)
 
 	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO0);
 
+	/* ATTENTION
+	 * It is essential that interrupt handlers that make use of the FreeRTOS API
+	 * have a logical priority equal to or below that set by
+	 * the configMAX_SYSCALL_INTERRUPT_PRIORITY
+	 *
+	 * NOTE
+	 * In ARM Cortex-M cores, numerically low priority values are used
+	 * to specify logically high interrupt priorities
+	 *
+	 * NOTE
+	 * Here we use minimal logical priority for user button interrupt
+	 */
+
+	nvic_set_priority(NVIC_EXTI0_IRQ, configKERNEL_INTERRUPT_PRIORITY);
+
 	/* enable EXTI0 interrupt */
 
 	nvic_enable_irq(NVIC_EXTI0_IRQ);
@@ -59,11 +74,12 @@ void hw_init(void)
 
 	/*
 		http://www.freertos.org/RTOS-Cortex-M3-M4.html
-		Preempt priority and subpriority:
 
-			If you are using an STM32 with the STM32 driver library then ensure all the
-			priority bits are assigned to be preempt priority bits by calling
-			NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4 ); before the RTOS is started.
+		Preempt priority and subpriority
+		If you are using an STM32 then ensure that all the priority bits are assigned to
+		be preempt priority bits by the following function before FreeRTOS is started:
+		  - NVIC_PriorityGroupConfig( NVIC_PriorityGroup_4) if you are using CMSIS
+		  - scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_GROUP16_NOSUB) if you are using libopencm3
 	*/
 
 	scb_set_priority_grouping(SCB_AIRCR_PRIGROUP_GROUP16_NOSUB);
