@@ -28,7 +28,7 @@ PFLAGS = \
 
 ## projects for stm32f4-nucleo
 
-TARGETS = "leds uart rf24cli rf24hub"
+TARGETS = "leds uart rf24cli rf24hub freertos-demo"
 
 ifeq ($(MAKECMDGOALS), leds)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds/build.mk
@@ -44,6 +44,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), rf24hub)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/rf24hub/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), freertos-demo)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/freertos-demo/build.mk
 endif
 
 ## platform-specific flash rules
