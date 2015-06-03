@@ -16,6 +16,7 @@ void hw_init(void)
 	rcc_periph_clock_enable(RCC_GPIOD);
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_SYSCFG);
 
 	/* leds */
 
