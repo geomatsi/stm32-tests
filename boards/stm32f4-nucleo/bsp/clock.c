@@ -67,7 +67,7 @@ static void systick_setup(void)
  *   - submit patch to libopencm3
  */
 
-static void rcc_clock_setup_in_hsi_out_84mhz(void)
+void rcc_clock_setup_in_hsi_out_84mhz(void)
 {
 	/* Enable power control block. */
 	rcc_periph_clock_enable(RCC_PWR);
