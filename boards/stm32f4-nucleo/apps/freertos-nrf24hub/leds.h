@@ -11,7 +11,7 @@
 typedef struct {
 	uint32_t port;
 	uint16_t pins;
-	uint32_t delay;
+	uint32_t ms;
 } led_t;
 
 /* */

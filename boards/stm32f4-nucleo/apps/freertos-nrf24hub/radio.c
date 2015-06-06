@@ -38,16 +38,23 @@ struct rf24 nrf = {
 	.spi_xfer = f_spi_xfer,
 };
 
-/* UGLY HACK: delay API needs to be properly implemented using e.g. TIM timers */
+/* HACK: implement delay API using vTaskDelay
+ *   - usable only from tasks
+ *   - libnrf24 needs up to ~10us delays => high RATE_HZ is needed
+ *
+ * TODO: delay API needs to be implemented properly (TIM timers ?)
+ */
 
-void delay_ms(int delay)
+void delay_ms(int ms)
 {
+	TickType_t delay = ms * configTICK_RATE_HZ / 1000;
 	vTaskDelay(delay);
 }
 
-void delay_us(int delay)
+void delay_us(int us)
 {
-	vTaskDelay(1);
+	TickType_t delay = us * configTICK_RATE_HZ / 1000000;
+	vTaskDelay(delay);
 }
 
 /* */
@@ -121,6 +128,6 @@ void radio_task(void *Parameters)
 			}
 		}
 
-		vTaskDelayUntil(&LastWake, 10);
+		vTaskDelayUntil(&LastWake, 100);
 	}
 }
