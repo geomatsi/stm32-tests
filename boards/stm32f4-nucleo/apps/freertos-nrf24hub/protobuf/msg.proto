@@ -1,0 +1,8 @@
+message sensor_data {
+    required uint32 type = 1;
+    required uint32 data = 2;
+}
+
+message sensor_data_list {
+    repeated sensor_data sensor = 1;
+}

@@ -16,6 +16,10 @@
 #include "queue.h"
 #include "task.h"
 
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "msg.pb.h"
+
 /* */
 
 void radio_task(void *Parameters);
