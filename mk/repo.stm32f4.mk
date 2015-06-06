@@ -9,6 +9,7 @@ PLAT	= stm32f4-nucleo
 
 # project and output directories
 
+TOP_DIR = $(shell pwd)
 OBJ_DIR = $(shell pwd)/out
 PRJ_DIR = $(shell pwd)/tests
 
@@ -43,13 +44,18 @@ STLINKY_LIB_DIR	= libstlinky
 LIBSTLINKY_INC	= -I$(STLINKY_LIB_DIR)/include
 LIBSTLINKY		= $(STLINKY_LIB_DIR)/libstlinky_$(CHIP).a
 
+# nanopb
+
+NANOPB_DIR		= nanopb
+NANOPB_INC		= -I$(NANOPB_DIR)
+
 ## platform specific definitions
 
 include $(PRJ_DIR)/boards/$(PLAT)/platform.mk
 
 ## build rules for dependencies
 
-deps: libopencm3 libnrf24 libstlinky
+deps: libopencm3 libnrf24 libstlinky nanopb
 
 libnrf24:
 	make -C libnrf24 \
@@ -70,6 +76,9 @@ libstlinky:
 		CFG_FLAGS=-DCONFIG_LIB_PRINTF \
 		PLT_FLAGS="$(PFLAGS)"
 
+nanopb:
+	make -C nanopb/generator/proto
+
 ## clean rules
 
 clean:
@@ -84,5 +93,6 @@ distclean:
 .PHONY: libopencm3
 .PHONY: libnrf24
 .PHONY: libstlinky
+.PHONY: nanopb
 .PHONY: distclean
 .PHONY: clean
