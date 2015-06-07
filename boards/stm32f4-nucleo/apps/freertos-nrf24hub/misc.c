@@ -17,7 +17,9 @@ void error_blink(uint32_t port, uint16_t pins)
 
 	while (1) {
 		gpio_toggle(port, pins);
-		xdelay(0x3ffff);
+		xdelay(0x3fffff);
+		gpio_toggle(port, pins);
+		xdelay(0x1fffff);
 	}
 }
 

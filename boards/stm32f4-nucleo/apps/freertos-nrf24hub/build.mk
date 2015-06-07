@@ -37,7 +37,7 @@ RTOS_SRCS := \
 	printf.c \
 	stdlib.c \
 	pb_common.c \
-	pb_encode.c \
+	pb_decode.c \
 	msg.pb.c \
 
 RTOS_SRCS += \

@@ -94,6 +94,39 @@ void radio_init(void)
 
 /* */
 
+bool sensor_callback(pb_istream_t *stream, const pb_field_t *field, void **arg)
+{
+	sensor_data sensor = {};
+
+	if (!pb_decode(stream, sensor_data_fields, &sensor)) {
+		return false;
+	}
+
+	printf("sensor[%u] = %u\n", sensor.type, sensor.data);
+
+	return true;
+}
+
+void decode_message(uint8_t *buf, uint32_t len)
+{
+	pb_istream_t stream = pb_istream_from_buffer(buf, len);
+	sensor_data_list message = {};
+    bool pb_status;
+
+	message.sensor.funcs.decode = &sensor_callback;
+	message.sensor.arg = NULL;
+
+	pb_status = pb_decode(&stream, sensor_data_list_fields, &message);
+
+	if (!pb_status) {
+		printf("protobuf decoding failed: %s\n", PB_GET_ERROR(&stream));
+	}
+
+	return;
+}
+
+/* */
+
 void radio_task(void *Parameters)
 {
 	(void) Parameters;
@@ -121,7 +154,7 @@ void radio_task(void *Parameters)
 
 				len = rf24_get_dynamic_payload_size(pnrf);
 				more_data = rf24_read(pnrf, buf, len);
-				printf("INFO: data [%08x]\n", *buf);
+				decode_message(buf, len);
 
 				if (!more_data)
 					printf("WARN: RX_FIFO not empty: %d\n", more_data);
