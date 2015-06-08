@@ -145,6 +145,18 @@ void hw_init(void)
 
 	gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO13);
 
+	/* configure EXTI13 and EXTI15_10_isr to handle user button */
+
+	exti_select_source(EXTI13, GPIOC);
+	exti_set_trigger(EXTI13, EXTI_TRIGGER_FALLING);
+	exti_enable_request(EXTI13);
+
+	/* configure EXTI10 and EXTI15_10_isr to handle user button */
+
+	exti_select_source(EXTI10, GPIOA);
+	exti_set_trigger(EXTI10, EXTI_TRIGGER_FALLING);
+	exti_enable_request(EXTI10);
+
 	/* ATTENTION
 	 * It is essential that interrupt handlers that make use of the FreeRTOS API
 	 * have a logical priority equal to or below that set by
@@ -159,14 +171,7 @@ void hw_init(void)
 	 */
 
 	nvic_set_priority(NVIC_EXTI15_10_IRQ, configKERNEL_INTERRUPT_PRIORITY);
-
-	/* configure EXTI13 and EXTI15_10_isr to handle user button */
-
 	nvic_enable_irq(NVIC_EXTI15_10_IRQ);
-
-	exti_select_source(EXTI13, GPIOC);
-	exti_set_trigger(EXTI13, EXTI_TRIGGER_FALLING);
-	exti_enable_request(EXTI13);
 
 	/*
 		http://www.freertos.org/RTOS-Cortex-M3-M4.html

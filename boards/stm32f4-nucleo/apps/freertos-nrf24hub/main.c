@@ -20,9 +20,10 @@ led_t led = { .port = GPIOB, .pins = GPIO10, .ms = 1000 };
 
 int main(void)
 {
-	hw_init();
-
 	button_init();
+	radio_init();
+
+	hw_init();
 
 	xTaskCreate(leds_task, (const char *) "led", configMINIMAL_STACK_SIZE, (void *) &led, tskIDLE_PRIORITY + 2, NULL);
 	xTaskCreate(button_task, (const char *) "button", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);

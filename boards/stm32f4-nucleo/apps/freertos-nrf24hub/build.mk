@@ -36,6 +36,7 @@ RTOS_SRCS := \
 	uart.c \
 	printf.c \
 	stdlib.c \
+	exti_isr.c \
 	pb_common.c \
 	pb_decode.c \
 	msg.pb.c \

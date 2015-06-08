@@ -7,6 +7,9 @@ uint8_t addr1[] = {'E', 'F', 'S', 'N', '1'};
 
 uint8_t buf[64];
 
+QueueHandle_t xRxQueue;
+struct rf24 *pnrf;
+
 /* */
 
 static void f_csn(int level)
@@ -59,7 +62,7 @@ void delay_us(int us)
 
 /* */
 
-void radio_init(void)
+static void radio_hw_init(void)
 {
 	/* Default configuration from libnrf24:
 	 *  - SETUP_RETR:ARD = 100b		~ auto retransmit delay 1500us
@@ -75,10 +78,7 @@ void radio_init(void)
 	 *  - no ack payload
 	 */
 
-	struct rf24 *pnrf = &nrf;
-
 	rf24_init(pnrf);
-	rf24_print_status(rf24_get_status(pnrf));
 
 	/* */
 
@@ -89,7 +89,6 @@ void radio_init(void)
 
 	rf24_start_listening(pnrf);
 	rf24_print_status(rf24_get_status(pnrf));
-    rf24_print_details(pnrf);
 }
 
 /* */
@@ -127,24 +126,37 @@ void decode_message(uint8_t *buf, uint32_t len)
 
 /* */
 
+void radio_init(void)
+{
+	xRxQueue = xQueueCreate( 256, sizeof( unsigned char ) );
+
+	if (!xRxQueue) {
+		printf("ERROR: can't create radio queue\n\r");
+	}
+
+	pnrf = &nrf;
+}
+
+/* */
+
 void radio_task(void *Parameters)
 {
 	(void) Parameters;
-
 	uint32_t more_data;
+	unsigned char c;
 	uint8_t pipe;
 	uint8_t len;
 
-	struct rf24 *pnrf = &nrf;
-	TickType_t LastWake;
+	radio_hw_init();
 
-	radio_init();
-
-	LastWake = xTaskGetTickCount();
+	printf("started radio task...\n\r");
 
 	while(1) {
 
-		if (rf24_available(pnrf, &pipe)) {
+		xQueueReceive(xRxQueue, &c, portMAX_DELAY);
+		printf("radio_task got %c message\n\r", c);
+
+		while (rf24_available(pnrf, &pipe)) {
 
 			if ((pipe < 0) || (pipe > 5)) {
 				printf("WARN: invalid pipe number 0x%02x\n", (int) pipe);
@@ -160,7 +172,5 @@ void radio_task(void *Parameters)
 					printf("WARN: RX_FIFO not empty: %d\n", more_data);
 			}
 		}
-
-		vTaskDelayUntil(&LastWake, 100);
 	}
 }
