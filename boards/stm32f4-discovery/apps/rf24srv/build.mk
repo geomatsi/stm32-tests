@@ -16,6 +16,7 @@ RF24SRV_SRCS := \
 	stdlib.c \
 	printf.c \
 	clock.c \
+	delay.c \
 
 RF24SRV_OBJS := $(RF24SRV_SRCS:.c=.o)
 RF24SRV_OBJS := $(addprefix $(OBJ_DIR)/,$(RF24SRV_OBJS))

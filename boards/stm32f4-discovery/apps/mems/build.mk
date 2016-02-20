@@ -15,6 +15,7 @@ MEMS_SRCS := \
 	stdlib.c \
 	printf.c \
 	clock.c \
+	delay.c \
 
 MEMS_OBJS := $(MEMS_SRCS:.c=.o)
 MEMS_OBJS := $(addprefix $(OBJ_DIR)/,$(MEMS_OBJS))

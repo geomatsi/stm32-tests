@@ -14,7 +14,6 @@ CDC_SRCS := \
 	main_cdc.c \
 	stdlib.c \
 	printf.c \
-	clock.c \
 
 CDC_OBJS := $(CDC_SRCS:.c=.o)
 CDC_OBJS := $(addprefix $(OBJ_DIR)/,$(CDC_OBJS))

@@ -15,6 +15,7 @@ LEDS_SRCS := \
 	stdlib.c \
 	printf.c \
 	clock.c \
+	delay.c \
 
 LEDS_OBJS := $(LEDS_SRCS:.c=.o)
 LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))

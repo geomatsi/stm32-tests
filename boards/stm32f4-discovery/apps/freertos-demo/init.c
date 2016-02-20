@@ -10,7 +10,7 @@ uint32_t SystemCoreClock;
 void hw_init(void)
 {
 	/* TODO: sync SystemCoreClock with rcc_clock_setup_xxx settings */
-	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_120MHZ]);
+	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
 	SystemCoreClock = 120000000;
 
 	rcc_periph_clock_enable(RCC_GPIOD);

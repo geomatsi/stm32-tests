@@ -29,6 +29,7 @@
 #include <stlinky.h>
 
 #include "clock.h"
+#include "delay.h"
 
 static void spi_setup(void)
 {
@@ -96,7 +97,8 @@ int main(void)
 	/* NOTE: execution blocks here until st-term is connected */
 	printf("start %s ...\n", tx);
 
-	setup_clocks();
+	clock_setup();
+	systick_setup();
 
 	gpio_setup();
 	spi_setup();

@@ -20,34 +20,35 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <stdint.h>
 
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-/* setup stm32f4 clock to 120MHz
- * TODO: pass clock freq as a parameter
+/* monotonically increasing number of microseconds from reset
+ * NB: overflows every ~5800 centuries
+ * TODO: need to check if 64bit tick counter is ok
  */
 
-void clock_setup(void)
+volatile uint64_t system_micros;
+
+/* define non-empty sys_tick_handler
+ *   - see libopencm3/lib/cm3/vector.c
+ */
+
+/* Called when systick fires */
+void sys_tick_handler(void)
 {
-	rcc_clock_setup_hse_3v3(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_120MHZ]);
+	system_micros++;
 }
 
-/* Set up a timer to create 1uS ticks. */
+/* delay API */
 
-void systick_setup(void)
+void delay_us(int delay)
 {
-	/* clock rate / 1e6 to get 1us interrupt rate */
-	systick_set_reload(120);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_counter_enable();
-
-	/* this done last */
-	systick_interrupt_enable();
+	uint64_t wake = system_micros + (uint64_t) delay;
+	while (wake > system_micros);
 }
 
-
+void delay_ms(int delay)
+{
+	uint64_t wake = system_micros + (uint64_t) (delay*1000);
+	while (wake > system_micros);
+}
