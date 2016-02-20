@@ -20,16 +20,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <stdlib.h>
-//#include <string.h>
-//#include <stdio.h>
 #include <stdint.h>
-
-//#include <libopencm3/stm32/rcc.h>
-//#include <libopencm3/cm3/nvic.h>
-//#include <libopencm3/cm3/systick.h>
-//#include <libopencm3/stm32/flash.h>
-//#include <libopencm3/stm32/pwr.h>
 
 /* monotonically increasing number of microseconds from reset
  * NB: overflows every ~5800 centuries
