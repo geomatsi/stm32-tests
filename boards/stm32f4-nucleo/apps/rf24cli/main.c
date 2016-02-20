@@ -30,6 +30,7 @@
 
 #include "rf24cli.h"
 #include "clock.h"
+#include "delay.h"
 
 /* */
 
@@ -87,7 +88,8 @@ int main(void)
 
 	/* */
 
-	setup_clocks();
+	clock_setup();
+	systick_setup();
 
 	usart_setup();
 	leds_setup();

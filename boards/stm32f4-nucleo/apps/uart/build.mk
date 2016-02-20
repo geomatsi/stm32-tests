@@ -15,6 +15,7 @@ UART_SRCS := \
 	stdlib.c \
 	printf.c \
 	clock.c \
+	delay.c \
 
 UART_OBJS := $(UART_SRCS:.c=.o)
 UART_OBJS := $(addprefix $(OBJ_DIR)/,$(UART_OBJS))

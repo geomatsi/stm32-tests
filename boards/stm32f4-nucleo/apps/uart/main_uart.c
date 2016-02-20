@@ -27,6 +27,7 @@
 #include <libopencm3/stm32/usart.h>
 
 #include "clock.h"
+#include "delay.h"
 
 static void gpio_setup(void)
 {
@@ -68,7 +69,8 @@ int main(void)
 	char msg[] = "hello";
 	int i = 0;
 
-	setup_clocks();
+	clock_setup();
+	systick_setup();
 
 	usart_setup();
 	gpio_setup();

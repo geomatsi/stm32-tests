@@ -1,4 +1,5 @@
 #include "init.h"
+#include "clock.h"
 
 /* */
 
@@ -14,7 +15,8 @@ extern void rcc_clock_setup_in_hsi_out_84mhz(void);
 void hw_init(void)
 {
 	/* TODO: sync SystemCoreClock with rcc_clock_setup_xxx settings */
-	rcc_clock_setup_in_hsi_out_84mhz();
+	clock_setup();
+
 	SystemCoreClock = 84000000;
 
 	rcc_periph_clock_enable(RCC_GPIOA);

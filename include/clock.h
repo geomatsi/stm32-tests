@@ -3,11 +3,7 @@
 
 /* */
 
-void setup_clocks(void);
-
-/* */
-
-void delay_ms(int delay);
-void delay_us(int delay);
+void clock_setup(void);
+void systick_setup(void);
 
 #endif /* MCU_CLOCK_H */

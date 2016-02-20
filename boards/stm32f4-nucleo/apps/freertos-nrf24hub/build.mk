@@ -34,6 +34,7 @@ RTOS_SRCS := \
 	leds.c \
 	button.c \
 	uart.c \
+	clock.c \
 	printf.c \
 	stdlib.c \
 	exti_isr.c \

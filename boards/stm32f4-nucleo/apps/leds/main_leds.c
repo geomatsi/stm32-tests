@@ -26,6 +26,7 @@
 #include <libopencm3/stm32/gpio.h>
 
 #include "clock.h"
+#include "delay.h"
 
 static void gpio_setup(void)
 {
@@ -35,7 +36,8 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	setup_clocks();
+	clock_setup();
+	systick_setup();
 	gpio_setup();
 
 	while (1) {

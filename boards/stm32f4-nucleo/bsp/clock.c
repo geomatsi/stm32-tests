@@ -30,36 +30,6 @@
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/pwr.h>
 
-/* monotonically increasing number of microseconds from reset
- * NB: overflows every ~5800 centuries
- * TODO: need to check if 64bit tick counter is ok
- */
-
-volatile uint64_t system_micros;
-
-/* define non-empty sys_tick_handler
- *   - see libopencm3/lib/cm3/vector.c
- */
-
-/* Called when systick fires */
-void sys_tick_handler(void)
-{
-	system_micros++;
-}
-
-/* Set up a timer to create 1uS ticks. */
-
-static void systick_setup(void)
-{
-	/* clock rate / 1e6 to get 1us interrupt rate */
-	systick_set_reload(84);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_counter_enable();
-
-	/* this done last */
-	systick_interrupt_enable();
-}
-
 /* setup stm32f401re-nucleo clock to 84MHz
  *
  * TODO
@@ -67,17 +37,17 @@ static void systick_setup(void)
  *   - submit patch to libopencm3
  */
 
-void rcc_clock_setup_in_hsi_out_84mhz(void)
+void clock_setup(void)
 {
 	/* Enable power control block. */
 	rcc_periph_clock_enable(RCC_PWR);
 
 	/* Disable voltage scaling. */
-	pwr_set_vos_scale(SCALE2);
+	pwr_set_vos_scale(PWR_SCALE2);
 
 	/* Enable internal high-speed oscillator. */
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
+	rcc_osc_on(RCC_HSI);
+	rcc_wait_for_osc_ready(RCC_HSI);
 
 	/* Select HSI as SYSCLK source. */
 	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
@@ -91,8 +61,8 @@ void rcc_clock_setup_in_hsi_out_84mhz(void)
 	rcc_set_main_pll_hsi(16, 336, 4, 7);
 
 	/* Enable PLL oscillator and wait for it to stabilize. */
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
+	rcc_osc_on(RCC_PLL);
+	rcc_wait_for_osc_ready(RCC_PLL);
 
 	/* Configure flash settings. */
 	flash_set_ws(FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_2WS);
@@ -101,7 +71,7 @@ void rcc_clock_setup_in_hsi_out_84mhz(void)
 	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
 
 	/* Wait for PLL clock to be selected. */
-	rcc_wait_for_sysclk_status(PLL);
+	rcc_wait_for_sysclk_status(RCC_PLL);
 
 	/* Set the peripheral clock frequencies used */
 	rcc_ahb_frequency  = 84000000;
@@ -109,22 +79,15 @@ void rcc_clock_setup_in_hsi_out_84mhz(void)
 	rcc_apb2_frequency = 84000000;
 }
 
-void setup_clocks(void)
-{
-	rcc_clock_setup_in_hsi_out_84mhz();
-	systick_setup();
-}
+/* Set up a timer to create 1uS ticks. */
 
-/* delay API */
-
-void delay_us(int delay)
+void systick_setup(void)
 {
-	uint64_t wake = system_micros + (uint64_t) delay;
-	while (wake > system_micros);
-}
+	/* clock rate / 1e6 to get 1us interrupt rate */
+	systick_set_reload(84);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_counter_enable();
 
-void delay_ms(int delay)
-{
-	uint64_t wake = system_micros + (uint64_t) (delay*1000);
-	while (wake > system_micros);
+	/* this done last */
+	systick_interrupt_enable();
 }

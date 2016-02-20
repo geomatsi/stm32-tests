@@ -1,53 +1,10 @@
 #include "init.h"
+#include "clock.h"
 
 /* */
 
 /* FreeRTOS needs this variable */
 uint32_t SystemCoreClock;
-
-/* */
-
-static void rcc_clock_setup_in_hsi_out_84mhz(void)
-{
-	/* Enable power control block. */
-	rcc_periph_clock_enable(RCC_PWR);
-
-	/* Disable voltage scaling. */
-	pwr_set_vos_scale(SCALE2);
-
-	/* Enable internal high-speed oscillator. */
-	rcc_osc_on(HSI);
-	rcc_wait_for_osc_ready(HSI);
-
-	/* Select HSI as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_HSI);
-
-	/* Set prescalers for AHB, ADC, ABP1, ABP2. */
-	rcc_set_hpre(RCC_CFGR_HPRE_DIV_NONE);
-	rcc_set_ppre1(RCC_CFGR_PPRE_DIV_2);
-	rcc_set_ppre2(RCC_CFGR_PPRE_DIV_NONE);
-
-	/* */
-	rcc_set_main_pll_hsi(16, 336, 4, 7);
-
-	/* Enable PLL oscillator and wait for it to stabilize. */
-	rcc_osc_on(PLL);
-	rcc_wait_for_osc_ready(PLL);
-
-	/* Configure flash settings. */
-	flash_set_ws(FLASH_ACR_ICE | FLASH_ACR_DCE | FLASH_ACR_LATENCY_2WS);
-
-	/* Select PLL as SYSCLK source. */
-	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-
-	/* Wait for PLL clock to be selected. */
-	rcc_wait_for_sysclk_status(PLL);
-
-	/* Set the peripheral clock frequencies used */
-	rcc_ahb_frequency  = 84000000;
-	rcc_apb1_frequency = 42000000;
-	rcc_apb2_frequency = 84000000;
-}
 
 /*
  *	Connectivity between nRF24L01 on Wireless Gateway Shield v1.0 and
@@ -65,7 +22,8 @@ static void rcc_clock_setup_in_hsi_out_84mhz(void)
 void hw_init(void)
 {
 	/* TODO: sync SystemCoreClock with rcc_clock_setup_xxx settings */
-	rcc_clock_setup_in_hsi_out_84mhz();
+	clock_setup();
+
 	SystemCoreClock = 84000000;
 
 	/*
