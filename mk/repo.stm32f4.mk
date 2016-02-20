@@ -21,7 +21,6 @@ info:
 	@echo "ARCH = $(ARCH)"
 	@echo "PLAT = $(PLAT)"
 	@echo "CHIP = $(CHIP)"
-	@echo "CHIP_LCM3 = $(CHIP_LCM3)"
 	@echo "BUILD TARGETS = $(TARGETS)"
 
 ## dependencies
@@ -55,19 +54,18 @@ include $(PRJ_DIR)/boards/$(PLAT)/platform.mk
 
 ## build rules for dependencies
 
-deps: libopencm3 libnrf24 libstlinky nanopb
-
 libnrf24:
 	make -C libnrf24 \
 		CROSS_COMPILE=$(CROSS_COMPILE)	\
 		TARGET=$(CHIP) \
-		PLT_FLAGS="$(PFLAGS)"
+		PLT_FLAGS="$(PFLAGS)" \
+		CFG_FLAGS="$(NRF24_CFG_FLAGS)"
 
 libopencm3:
 	make -C libopencm3 \
-		FP_FLAGS="-mfloat-abi=soft" \
 		PREFIX=$(CROSS_COMPILE) \
-		TARGETS="$(CHIP_LCM3)"
+		FP_FLAGS=$(LIBCM3_FPFLAGS) \
+		TARGETS="$(LIBCM3_TARGET)"
 
 libstlinky:
 	make -C libstlinky \

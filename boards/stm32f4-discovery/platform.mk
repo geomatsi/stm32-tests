@@ -18,6 +18,15 @@ OBJCOPY = $(CROSS_COMPILE)-objcopy
 CHIP		= stm32f4
 CHIP_LCM3	= stm32/f4
 
+## platform dependencies
+
+NRF24_CFG_FLAGS = -DNRF24_LOG_LEVEL=3
+
+LIBCM3_TARGET	= stm32/f4
+LIBCM3_FPFLAGS	="-mfloat-abi=soft"
+
+deps: libopencm3 libnrf24 libstlinky
+
 ## platform-specific compile flags
 
 PFLAGS = \
