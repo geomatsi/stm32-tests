@@ -12,6 +12,7 @@ CROSS_COMPILE = arm-none-linux-gnueabi
 CC		= $(CROSS_COMPILE)-gcc
 LD		= $(CROSS_COMPILE)-ld
 OBJCOPY = $(CROSS_COMPILE)-objcopy
+OBJSIZE = $(CROSS_COMPILE)-size
 
 ## platform identifiers
 

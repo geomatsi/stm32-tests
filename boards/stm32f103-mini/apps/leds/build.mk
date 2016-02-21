@@ -35,6 +35,7 @@ LDFLAGS = -T$(PRJ_DIR)/ld/stm32f103-mini.ld
 
 leds: $(OBJ_DIR)/leds.bin
 	cp $(OBJ_DIR)/leds.bin $(OBJ_DIR)/test.bin
+	$(OBJSIZE) $(OBJ_DIR)/leds.elf
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
