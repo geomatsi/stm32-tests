@@ -5,7 +5,9 @@
 ## Platform definitions
 
 ARCH	= arm
-PLAT	= stm32f4-nucleo
+#PLAT	= stm32f4-nucleo
+#PLAT	= stm32f4-discovery
+PLAT	= stm32f103-mini
 
 # project and output directories
 
