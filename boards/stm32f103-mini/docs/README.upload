@@ -1,0 +1,22 @@
+#### Upload/debug options
+
+## 1. SWD: openocd and UM232 board
+
+Command to flash new program:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-um232.cfg -c 'program ()'
+
+Command to attach for debug:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-um232.cfg -c 'attach ()'
+
+## 2. SWD: openocd and JLink
+
+Command to flash new program:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'program ()'
+
+Command to attach for debug:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'attach ()'
+
+## 3. ROM UART bootloader: TODO
+Several simple tools to flash stm32 chips using serial bootloader built into ROM:
+  - https://github.com/jsnyder/stm32ld
+  - https://github.com/jsnyder/stm32loader

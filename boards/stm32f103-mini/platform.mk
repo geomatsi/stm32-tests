@@ -44,7 +44,7 @@ endif
 ## platform-specific flash rules
 
 upload:
-	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd.cfg -c 'program ()'
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'program ()'
 
 debug:
-	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd.cfg -c 'attach ()'
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'attach ()'
