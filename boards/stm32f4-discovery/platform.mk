@@ -37,10 +37,14 @@ PFLAGS = \
 
 ## projects for stm32f4-discovery
 
-TARGETS = "leds mems cdc rf24srv freertos-demo"
+TARGETS = "leds stlinky-test mems cdc rf24srv freertos-demo"
 
 ifeq ($(MAKECMDGOALS), leds)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), stlinky-test)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/stlinky-test/build.mk
 endif
 
 ifeq ($(MAKECMDGOALS), mems)

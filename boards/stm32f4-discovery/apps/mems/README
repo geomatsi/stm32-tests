@@ -1,0 +1,3 @@
+UART2 port:
+	- RX = PA3
+	- TX = PA2

@@ -11,9 +11,8 @@ VPATH += $(PRJ_DIR)/boards/stm32f4-discovery/apps/leds
 ## sources
 
 LEDS_SRCS := \
-	main_leds.c \
+	main.c \
 	stdlib.c \
-	printf.c \
 	clock.c \
 	delay.c \
 
@@ -22,13 +21,13 @@ LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
 
 ## deps
 
-LIBS = $(LIBCM3) $(LIBSTLINKY)
+LIBS = $(LIBCM3)
 
 ## flags
 
 CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F4
 
-CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC) $(LIBSTLINKY_INC)
+CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
 LDFLAGS = -T$(PRJ_DIR)/ld/stm32f4-discovery.ld
 

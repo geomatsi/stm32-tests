@@ -25,8 +25,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
-
-#include <stlinky.h>
+#include <libopencm3/stm32/usart.h>
 
 #include "clock.h"
 #include "delay.h"
@@ -84,53 +83,62 @@ static void gpio_setup(void)
 	gpio_set(GPIOD, GPIO15);
 }
 
+static void uart_setup(void)
+{
+	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_SYSCFG);
+
+	/* uart2 port: RX = PA3 TX = PA2 */
+
+	/* Setup GPIO pin GPIO_USART2_TX/GPIO9 on GPIO port A for transmit. */
+	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
+	gpio_set_af(GPIOA, GPIO_AF7, GPIO2| GPIO3);
+
+	/* Setup UART parameters. */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_stopbits(USART2, USART_STOPBITS_1);
+	usart_set_mode(USART2, USART_MODE_TX_RX);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+
+	/* Finally enable the USART. */
+	usart_enable(USART2);
+}
+
+int putchar(int c)
+{
+	uint16_t ch = (uint16_t) c;
+	usart_send_blocking(USART2, ch);
+	return 0;
+}
+
 int main(void)
 {
-	char rx[20] = {0};
-	char tx[] = "hello world";
-
 	/* reg = WHO_AM_I | READ_CMD */
 	uint16_t reg = 0x80 | 0xF;
 	uint16_t dummy = 0x0;
 	uint16_t val;
-
-	/* NOTE: execution blocks here until st-term is connected */
-	printf("start %s ...\n", tx);
 
 	clock_setup();
 	systick_setup();
 
 	gpio_setup();
 	spi_setup();
+	uart_setup();
 
 	/* */
 
 	while (1) {
+		gpio_toggle(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
 
-		gpio_toggle(GPIOD, GPIO12);
-		gpio_toggle(GPIOD, GPIO13);
-		gpio_toggle(GPIOD, GPIO14);
-		gpio_toggle(GPIOD, GPIO15);
+		gpio_clear(GPIOE, GPIO3);
+		val = spi_xfer(SPI1, reg);
+		val = spi_xfer(SPI1, dummy);
+		gpio_set(GPIOE, GPIO3);
+		printf("spi read 0x%04x\n", val);
 
 		delay_ms(1000);
-
-		if (stlinky_avail(&g_stlinky_term)) {
-			stlinky_rx(&g_stlinky_term, rx, sizeof(rx));
-			tx[0] = rx[0];
-
-			switch (rx[0]) {
-				case 32: /* spi read on SPACE */
-					gpio_clear(GPIOE, GPIO3);
-					val = spi_xfer(SPI1, reg);
-					val = spi_xfer(SPI1, dummy);
-					gpio_set(GPIOE, GPIO3);
-					printf("spi read 0x%04x\n", val);
-					break;
-				default:
-					printf("key pressed: code('%c') = %d\n", (char) rx[0], (int) rx[0]);
-					break;
-			}
-		}
 	}
 
 	return 0;

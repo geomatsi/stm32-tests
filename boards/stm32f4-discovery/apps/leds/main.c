@@ -25,8 +25,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-#include <stlinky.h>
-
 #include "clock.h"
 #include "delay.h"
 
@@ -42,12 +40,6 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	char rx[20] = {0};
-	char tx[] = "hello";
-
-	/* NOTE: execution blocks here until st-term is connected */
-	printf("start %s ...\n", tx);
-
 	clock_setup();
 	systick_setup();
 
@@ -58,17 +50,8 @@ int main(void)
 	gpio_clear(GPIOD, GPIO15);
 
 	while (1) {
-
 		gpio_toggle(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-
 		delay_ms(500);
-
-		if (stlinky_avail(&g_stlinky_term)) {
-			stlinky_rx(&g_stlinky_term, rx, sizeof(rx));
-			tx[0] = rx[0];
-
-			printf("test: %d <-> %s\n", (int) rx[0], tx);
-		}
 	}
 
 	return 0;
