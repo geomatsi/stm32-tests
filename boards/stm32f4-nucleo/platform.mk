@@ -65,6 +65,7 @@ endif
 ## platform-specific flash rules
 
 upload:
-	st-flash erase
-	sleep 2
-	st-flash write $(OBJ_DIR)/test.bin 0x8000000
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'program ()'
+
+debug:
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'attach ()'

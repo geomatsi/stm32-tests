@@ -1,0 +1,28 @@
+#### Upload/debug options
+
+## 1. STLink: stlink utilities via USB
+
+Tools: https://github.com/texane/stlink.git
+
+Commands to flash new program:
+	$ st-flash erase
+	$ st-flash write $(OBJ_DIR)/test.bin 0x8000000
+
+## 2. STLink: openocd via USB
+
+Command to upload new program:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'program ()'
+
+Command to attach for debug:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'attach ()'
+
+## 3. SWD: openocd and JLink
+
+SWD pins:
+TODO
+
+Command to flash new program:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'program ()'
+
+Command to attach for debug:
+	$ openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'attach ()'
