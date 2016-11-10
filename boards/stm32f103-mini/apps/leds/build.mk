@@ -26,10 +26,10 @@ LIBS = $(LIBCM3)
 ## flags
 
 CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F1
-
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
-LDFLAGS = -T$(PRJ_DIR)/ld/stm32f103-mini.ld
+LDSCRIPT = $(PRJ_DIR)/ld/stm32f103-mini.ld
+LDFLAGS =  -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
@@ -43,8 +43,8 @@ leds: $(OBJ_DIR)/leds.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/leds.elf: $(LEDS_OBJS) $(LIBS) $(PRJ_DIR)/ld/stm32f103-mini.ld
-	$(LD) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
+$(OBJ_DIR)/leds.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
+	$(CC) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(dir $@)

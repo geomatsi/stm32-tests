@@ -7,7 +7,7 @@
 
 ## toolchain
 
-CROSS_COMPILE = arm-none-linux-gnueabi
+CROSS_COMPILE = arm-none-eabi
 
 CC		= $(CROSS_COMPILE)-gcc
 LD		= $(CROSS_COMPILE)-ld
@@ -21,17 +21,16 @@ CHIP = stm32f1
 ## platform dependencies
 
 LIBCM3_TARGET	= stm32/f1
-LIBCM3_FPFLAGS	="-mfloat-abi=soft"
+LIBCM3_FPFLAGS	= -msoft-float
 
 deps: libopencm3
 
 ## platform-specific compile flags
 
 PFLAGS = \
+	-mthumb			\
 	-mcpu=cortex-m3		\
-	-mfloat-abi=softfp	\
-	-mthumb				\
-	-mthumb-interwork
+	-msoft-float		\
 
 ## projects for stm32f4-nucleo
 
