@@ -6,7 +6,7 @@
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/$(PLAT)/bsp
-VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds
+VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini
 
 ## sources
 
@@ -31,9 +31,9 @@ LDFLAGS =  -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
-leds: $(OBJ_DIR)/leds.bin
-	cp $(OBJ_DIR)/leds.bin $(OBJ_DIR)/test.bin
-	$(OBJSIZE) $(OBJ_DIR)/leds.elf
+leds-mini: $(OBJ_DIR)/leds-mini.bin
+	cp $(OBJ_DIR)/leds-mini.bin $(OBJ_DIR)/test.bin
+	$(OBJSIZE) $(OBJ_DIR)/leds-mini.elf
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -41,7 +41,7 @@ leds: $(OBJ_DIR)/leds.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/leds.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
+$(OBJ_DIR)/leds-mini.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
 	$(CC) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
