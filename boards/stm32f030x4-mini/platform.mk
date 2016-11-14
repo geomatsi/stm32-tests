@@ -34,7 +34,7 @@ PFLAGS = \
 
 ## projects
 
-TARGETS = "leds-mini leds-systick"
+TARGETS = "leds-mini leds-systick leds-pwm"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -42,6 +42,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), leds-systick)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-systick/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), leds-pwm)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-pwm/build.mk
 endif
 
 ## platform-specific flash rules
