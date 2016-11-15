@@ -26,8 +26,8 @@ LIBS = $(LIBCM3)
 CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F0
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
-LDSCRIPT = $(PRJ_DIR)/ld/stm32f030x4-mini.ld 
-LDFLAGS =  -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
+LDSCRIPT = $(PRJ_DIR)/ld/stm32f030x4-mini.ld
+LDFLAGS =  $(PFLAGS) -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
