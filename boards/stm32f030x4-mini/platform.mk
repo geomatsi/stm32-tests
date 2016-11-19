@@ -35,7 +35,7 @@ PFLAGS = \
 
 ## projects
 
-TARGETS = "leds-mini leds-systick leds-pwm uart-simple"
+TARGETS = "leds-mini leds-systick leds-pwm uart-simple uart-printf-newlib uart-printf-custom"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -51,6 +51,14 @@ endif
 
 ifeq ($(MAKECMDGOALS), uart-simple)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-simple/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), uart-printf-newlib)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf-newlib/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), uart-printf-custom)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf-custom/build.mk
 endif
 
 ## platform-specific flash rules
