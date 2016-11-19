@@ -12,7 +12,6 @@ VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-systick
 
 LEDS_SRCS := \
 	main.c \
-	stdlib.c \
 	clock.c \
 
 LEDS_OBJS := $(LEDS_SRCS:.c=.o)

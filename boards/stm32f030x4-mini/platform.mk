@@ -31,6 +31,7 @@ PFLAGS = \
 	-mthumb			\
 	-mcpu=cortex-m0		\
 	-msoft-float		\
+	-ffunction-sections	\
 
 ## projects
 

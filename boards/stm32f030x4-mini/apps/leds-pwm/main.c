@@ -65,7 +65,6 @@ void tim14_isr(void)
 	/* update PWM duty cycle */
 	TIM_CCR1(TIM14) = duty;
 
-skip:
 	/* clear interrrupt flag */
 	TIM_SR(TIM14) &= ~TIM_SR_UIF;
 }

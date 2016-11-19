@@ -12,7 +12,6 @@ VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini
 
 LEDS_SRCS := \
 	main.c \
-	stdlib.c \
 
 LEDS_OBJS := $(LEDS_SRCS:.c=.o)
 LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
