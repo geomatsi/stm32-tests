@@ -6,13 +6,12 @@
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/$(PLAT)/bsp
-VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/uart-noirq
+VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/uart-simple
 
 ## sources
 
 LEDS_SRCS := \
 	main.c \
-	stdlib.c \
 
 LEDS_OBJS := $(LEDS_SRCS:.c=.o)
 LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
@@ -31,9 +30,9 @@ LDFLAGS =  $(PFLAGS) -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
-uart-noirq: $(OBJ_DIR)/uart-noirq.bin
-	cp $(OBJ_DIR)/uart-noirq.bin $(OBJ_DIR)/test.bin
-	$(OBJSIZE) $(OBJ_DIR)/uart-noirq.elf
+uart-simple: $(OBJ_DIR)/uart-simple.bin
+	cp $(OBJ_DIR)/uart-simple.bin $(OBJ_DIR)/test.bin
+	$(OBJSIZE) $(OBJ_DIR)/uart-simple.elf
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -41,7 +40,7 @@ uart-noirq: $(OBJ_DIR)/uart-noirq.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/uart-noirq.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
+$(OBJ_DIR)/uart-simple.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
 	$(CC) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
