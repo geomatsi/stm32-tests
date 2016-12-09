@@ -6,7 +6,7 @@
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/$(PLAT)/bsp
-VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-pwm
+VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-timer
 
 ## sources
 
@@ -30,9 +30,9 @@ LDFLAGS =  $(PFLAGS) -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
-leds-pwm: $(OBJ_DIR)/leds-pwm.bin
-	cp $(OBJ_DIR)/leds-pwm.bin $(OBJ_DIR)/test.bin
-	$(OBJSIZE) $(OBJ_DIR)/leds-pwm.elf
+leds-timer: $(OBJ_DIR)/leds-timer.bin
+	cp $(OBJ_DIR)/leds-timer.bin $(OBJ_DIR)/test.bin
+	$(OBJSIZE) $(OBJ_DIR)/leds-timer.elf
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -40,7 +40,7 @@ leds-pwm: $(OBJ_DIR)/leds-pwm.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/leds-pwm.elf: $(APP_OBJS) $(LIBS) $(LDSCRIPT)
+$(OBJ_DIR)/leds-timer.elf: $(APP_OBJS) $(LIBS) $(LDSCRIPT)
 	$(CC) $(LDFLAGS) $(APP_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c

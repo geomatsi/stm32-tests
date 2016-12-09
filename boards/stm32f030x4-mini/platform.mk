@@ -38,6 +38,7 @@ PFLAGS = \
 TARGETS = "			\
 	leds-mini		\
 	leds-systick		\
+	leds-timer		\
 	leds-pwm		\
 	uart-simple		\
 	uart-printf-newlib	\
@@ -50,6 +51,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), leds-systick)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-systick/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), leds-timer)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-timer/build.mk
 endif
 
 ifeq ($(MAKECMDGOALS), leds-pwm)
