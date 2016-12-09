@@ -80,7 +80,7 @@ void delay_ms(int delay)
 	while (wake > system_ms);
 }
 
-void delay_us(int delay)
+__attribute__((weak)) void delay_us(int delay)
 {
-	/* FIXME?: NOT SUPPORTED */
+	/* FIXME: NOT YET SUPPORTED, USE APP SPECIFIC HACKS FOR NOW */
 }
