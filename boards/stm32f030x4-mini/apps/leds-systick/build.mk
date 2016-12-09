@@ -10,12 +10,12 @@ VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/leds-systick
 
 ## sources
 
-LEDS_SRCS := \
+APP_SRCS := \
 	main.c \
 	clock.c \
 
-LEDS_OBJS := $(LEDS_SRCS:.c=.o)
-LEDS_OBJS := $(addprefix $(OBJ_DIR)/,$(LEDS_OBJS))
+APP_OBJS := $(APP_SRCS:.c=.o)
+APP_OBJS := $(addprefix $(OBJ_DIR)/,$(APP_OBJS))
 
 ## deps
 
@@ -23,7 +23,7 @@ LIBS = $(LIBCM3)
 
 ## flags
 
-CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F0
+CFLAGS  = $(PFLAGS) -Wall -Werror -Os -DSTM32F0
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
 LDSCRIPT = $(PRJ_DIR)/ld/stm32f030x4-mini.ld
@@ -41,8 +41,8 @@ leds-systick: $(OBJ_DIR)/leds-systick.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/leds-systick.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
-	$(CC) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
+$(OBJ_DIR)/leds-systick.elf: $(APP_OBJS) $(LIBS) $(LDSCRIPT)
+	$(CC) $(LDFLAGS) $(APP_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c
 	mkdir -p $(dir $@)

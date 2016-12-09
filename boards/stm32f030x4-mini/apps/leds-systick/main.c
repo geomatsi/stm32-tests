@@ -19,9 +19,6 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <inttypes.h>
-#include <stdio.h>
-
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
@@ -31,9 +28,7 @@
 static void gpio_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOA);
-	rcc_periph_clock_enable(RCC_GPIOB);
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
-	gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
 }
 
 int main(void)
@@ -43,13 +38,10 @@ int main(void)
 	gpio_setup();
 
 	gpio_set(GPIOA, GPIO4);
-	gpio_clear(GPIOB, GPIO1);
 
 	while (1) {
 		gpio_toggle(GPIOA, GPIO4);
 		delay_ms(500);
-		gpio_toggle(GPIOB, GPIO1);
-		delay_ms(1000);
 	}
 
 	return 0;
