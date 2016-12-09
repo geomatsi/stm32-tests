@@ -6,7 +6,7 @@
 
 VPATH += $(PRJ_DIR)/common
 VPATH += $(PRJ_DIR)/boards/$(PLAT)/bsp
-VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf-custom
+VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf
 
 ## sources
 
@@ -23,7 +23,7 @@ LIBS = $(LIBCM3)
 
 ## flags
 
-CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F0
+CFLAGS  = $(PFLAGS) -Wall -Werror -Os -DSTM32F0
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
 LDSCRIPT = $(PRJ_DIR)/ld/stm32f030x4-mini.ld
@@ -31,9 +31,9 @@ LDFLAGS =  $(PFLAGS) -nostartfiles -T$(LDSCRIPT) -Wl,--gc-sections
 
 ## rules
 
-uart-printf-custom: $(OBJ_DIR)/uart-printf-custom.bin
-	cp $(OBJ_DIR)/uart-printf-custom.bin $(OBJ_DIR)/test.bin
-	$(OBJSIZE) $(OBJ_DIR)/uart-printf-custom.elf
+uart-printf: $(OBJ_DIR)/uart-printf.bin
+	cp $(OBJ_DIR)/uart-printf.bin $(OBJ_DIR)/test.bin
+	$(OBJSIZE) $(OBJ_DIR)/uart-printf.elf
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex $^ $@
@@ -41,7 +41,7 @@ uart-printf-custom: $(OBJ_DIR)/uart-printf-custom.bin
 %.bin: %.elf
 	$(OBJCOPY) -O binary $^ $@
 
-$(OBJ_DIR)/uart-printf-custom.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
+$(OBJ_DIR)/uart-printf.elf: $(LEDS_OBJS) $(LIBS) $(LDSCRIPT)
 	$(CC) $(LDFLAGS) $(LEDS_OBJS) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: %.c

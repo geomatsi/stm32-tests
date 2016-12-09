@@ -19,9 +19,6 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <inttypes.h>
-#include <stdio.h>
-
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
@@ -69,7 +66,7 @@ int main(void)
 	gpio_setup();
 	usart_setup();
 
-	/* Blink the LED (PD12) on the board with every transmitted byte. */
+	/* blink the LED PA4 on the board with every transmitted byte */
 	while (1) {
 		gpio_toggle(GPIOA, GPIO4);
 		usart_send_blocking(USART1, c + '0');

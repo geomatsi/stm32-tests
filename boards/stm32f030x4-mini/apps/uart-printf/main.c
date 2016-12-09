@@ -19,60 +19,32 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <inttypes.h>
-#include <stdio.h>
-
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 
-/* */
+extern int printf(const char *format, ...);
 
-static ssize_t _iord(void *_cookie, char *_buf, size_t _n);
-static ssize_t _iowr(void *_cookie, const char *_buf, size_t _n);
-
-static ssize_t _iord(void *_cookie, char *_buf, size_t _n)
-{
-	/* dont support reading now */
-	(void)_cookie;
-	(void)_buf;
-	(void)_n;
-	return 0;
-}
-
-static ssize_t _iowr(void *_cookie, const char *_buf, size_t _n)
-{
-	uint32_t dev = (uint32_t)_cookie;
-
-	int written = 0;
-	while (_n-- > 0) {
-		usart_send_blocking(dev, *_buf++);
-		written++;
-	};
-	return written;
-}
-
-static FILE *usart_setup(uint32_t dev)
+static void usart_setup(void)
 {
 	/* setup USART1 parameters */
-	usart_set_baudrate(dev, 115200);
-	usart_set_databits(dev, 8);
-	usart_set_parity(dev, USART_PARITY_NONE);
-	usart_set_stopbits(dev, USART_CR2_STOP_1_0BIT);
-	usart_set_mode(dev, USART_MODE_TX);
-	usart_set_flow_control(dev, USART_FLOWCONTROL_NONE);
+	usart_set_baudrate(USART1, 115200);
+	usart_set_databits(USART1, 8);
+	usart_set_parity(USART1, USART_PARITY_NONE);
+	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);
+	usart_set_mode(USART1, USART_MODE_TX);
+	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 
-	/* enable USART */
-	usart_enable(dev);
-
-	cookie_io_functions_t stub = { _iord, _iowr, NULL, NULL };
-	FILE *fp = fopencookie((void *)dev, "rw+", stub);
-	/* Do not buffer the serial line */
-	setvbuf(fp, NULL, _IONBF, 0);
-	return fp;
+	/* enable USART1 */
+	usart_enable(USART1);
 }
 
-/* */
+int putchar(int c)
+{
+	uint8_t ch = (uint8_t)c;
+	usart_send_blocking(USART1, ch);
+	return 0;
+}
 
 static void clock_setup(void)
 {
@@ -97,20 +69,19 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	int i, c = 0;
-	FILE *fp;
+	char msg[] = "hello";
+	int i = 0, j = 0;
 
 	clock_setup();
 	gpio_setup();
-	fp = usart_setup(USART1);
+	usart_setup();
 
 	while (1) {
 		gpio_toggle(GPIOA, GPIO4);
 
-		fprintf(fp, "Pass: %d\n", c);
-		c = (c == 200) ? 0 : c + 1;
+		printf("string: %s -> cycle 0x%08x\r\n", msg, i++);
 
-		for (i = 0; i < 1000000; i++) {
+		for (j = 0; j < 1000000; j++) {
 			__asm__("NOP");
 		}
 	}

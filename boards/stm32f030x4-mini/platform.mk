@@ -41,8 +41,7 @@ TARGETS = "			\
 	leds-timer		\
 	leds-pwm		\
 	uart-simple		\
-	uart-printf-newlib	\
-	uart-printf-custom	\
+	uart-printf		\
 	i2c-lm75a-temp"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
@@ -65,12 +64,8 @@ ifeq ($(MAKECMDGOALS), uart-simple)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-simple/build.mk
 endif
 
-ifeq ($(MAKECMDGOALS), uart-printf-newlib)
-include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf-newlib/build.mk
-endif
-
-ifeq ($(MAKECMDGOALS), uart-printf-custom)
-include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf-custom/build.mk
+ifeq ($(MAKECMDGOALS), uart-printf)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/uart-printf/build.mk
 endif
 
 ifeq ($(MAKECMDGOALS), i2c-lm75a-temp)
