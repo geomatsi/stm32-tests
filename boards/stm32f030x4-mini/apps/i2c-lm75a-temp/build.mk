@@ -24,7 +24,7 @@ LIBS = $(LIBCM3)
 
 ## flags
 
-CFLAGS  = $(PFLAGS) -Wall -O2 -DSTM32F0
+CFLAGS  = $(PFLAGS) -Wall -Werror -Os -DSTM32F0
 CFLAGS += -I$(PRJ_DIR)/include $(LIBCM3_INC)
 
 LDSCRIPT = $(PRJ_DIR)/ld/stm32f030x4-mini.ld
