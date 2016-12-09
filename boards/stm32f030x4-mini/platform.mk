@@ -9,8 +9,8 @@
 
 CROSS_COMPILE = arm-none-eabi
 
-CC		= $(CROSS_COMPILE)-gcc
-LD		= $(CROSS_COMPILE)-ld
+CC = $(CROSS_COMPILE)-gcc
+LD = $(CROSS_COMPILE)-ld
 OBJCOPY = $(CROSS_COMPILE)-objcopy
 OBJSIZE = $(CROSS_COMPILE)-size
 
@@ -23,7 +23,7 @@ CHIP = stm32f0
 LIBCM3_TARGET	= stm32/f0
 LIBCM3_FPFLAGS	= -msoft-float
 
-deps: libopencm3
+deps: libopencm3 libnrf24
 
 ## platform-specific compile flags
 
@@ -42,7 +42,8 @@ TARGETS = "			\
 	leds-pwm		\
 	uart-simple		\
 	uart-printf		\
-	i2c-lm75a-temp"
+	i2c-lm75a-temp		\
+	spi-nrf24-node"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -70,6 +71,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), i2c-lm75a-temp)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/i2c-lm75a-temp/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), spi-nrf24-node)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/spi-nrf24-node/build.mk
 endif
 
 ## platform-specific flash rules
