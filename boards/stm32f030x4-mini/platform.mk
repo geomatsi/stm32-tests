@@ -43,7 +43,8 @@ TARGETS = "			\
 	uart-simple		\
 	uart-printf		\
 	i2c-lm75a-temp		\
-	spi-nrf24-node"
+	spi-nrf24-node		\
+	hse-led"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -75,6 +76,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), spi-nrf24-node)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/spi-nrf24-node/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), hse-led)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/hse-led/build.mk
 endif
 
 ## platform-specific flash rules
