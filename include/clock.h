@@ -3,7 +3,6 @@
 
 /* */
 
-void clock_setup(void);
-void systick_setup(void);
+void systick_setup_mhz(uint32_t mhz);
 
 #endif /* MCU_CLOCK_H */

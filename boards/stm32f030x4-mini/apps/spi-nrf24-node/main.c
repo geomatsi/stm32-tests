@@ -56,8 +56,6 @@ static void usart_setup(void)
 
 static void rcc_setup(void)
 {
-	rcc_clock_setup_in_hsi_out_48mhz();
-
 	/* enable GPIOA clock for LED and UART */
 	rcc_periph_clock_enable(RCC_GPIOA);
 
@@ -161,8 +159,10 @@ int main(void)
 	int count = 0;
 	int ret;
 
+	rcc_clock_setup_in_hsi_out_48mhz();
+	systick_setup_mhz(48);
+
 	rcc_setup();
-	systick_setup();
 	pinmux_setup();
 	usart_setup();
 	spi_setup();

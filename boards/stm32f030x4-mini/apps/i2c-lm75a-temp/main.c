@@ -146,8 +146,9 @@ int main(void)
 	uint8_t data[2];
 	int t, c = 0;
 
-	clock_setup();
-	systick_setup();
+	rcc_clock_setup_in_hsi_out_48mhz();
+	systick_setup_mhz(48);
+
 	rcc_setup();
 	gpio_setup();
 	usart_setup();

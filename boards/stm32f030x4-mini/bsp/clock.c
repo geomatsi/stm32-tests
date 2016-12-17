@@ -51,20 +51,14 @@ void sys_tick_handler(void)
 	system_ms++;
 }
 
-/* setup CPU clock to 48MHz */
-void clock_setup(void)
-{
-	rcc_clock_setup_in_hsi_out_48mhz();
-}
-
 /* set up a timer to create 1ms ticks */
-void systick_setup(void)
+void systick_setup_mhz(uint32_t mhz)
 {
 	/* set systick clock to CPU clock */
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 
-	/* clock rate 48*1e6/1e3 to get 1ms systick interrupt rate */
-	systick_set_reload(48000);
+	/* clock rate mhz*1e6/1e3 to get 1ms systick interrupt rate */
+	systick_set_reload(mhz*1000);
 
 	systick_counter_enable();
 
