@@ -44,7 +44,8 @@ TARGETS = "			\
 	uart-printf		\
 	i2c-lm75a-temp		\
 	spi-nrf24-node		\
-	hse-led"
+	hse-led			\
+	adc-test"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -80,6 +81,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), hse-led)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/hse-led/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), adc-test)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/adc-test/build.mk
 endif
 
 ## platform-specific flash rules
