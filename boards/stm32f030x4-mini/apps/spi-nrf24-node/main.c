@@ -24,6 +24,10 @@
 
 #include <RF24.h>
 
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "msg.pb.h"
+
 #include "clock.h"
 #include "delay.h"
 
@@ -32,6 +36,43 @@
 extern int sprintf(char *out, const char *format, ...);
 extern int printf(const char *format, ...);
 extern void * memset(void *s, int c, size_t n);
+
+/* */
+
+#define PB_LIST_LEN 2
+
+static uint32_t count = 0;
+
+bool sensor_encode_callback(pb_ostream_t *stream, const pb_field_t *field, void * const *arg)
+{
+	uint32_t data[PB_LIST_LEN];
+	sensor_data sensor = {};
+	uint32_t idx;
+
+	data[0] = (uint32_t)0xdeadbeef;
+	data[1] = (uint32_t)count;
+
+	/* encode  sensor_data */
+
+	for (idx = 0; idx < PB_LIST_LEN; idx++) {
+		sensor.type = idx;
+		sensor.data = data[idx];
+
+		if (!pb_encode_tag_for_field(stream, field)) {
+			printf("protobuf tag encoding failed: %s\n", PB_GET_ERROR(stream));
+			return false;
+		}
+
+		if (!pb_encode_submessage(stream, sensor_data_fields, &sensor)) {
+			printf("protobuf submessage encoding failed: %s\n", PB_GET_ERROR(stream));
+			return false;
+		}
+	};
+
+	return true;
+}
+
+/* */
 
 int putchar(int c)
 {
@@ -153,10 +194,16 @@ void delay_us(int delay)
 int main(void)
 {
 	uint8_t addr[] = {'E', 'F', 'C', 'L', 'I'};
-	struct rf24 *nrf = &nrf24_ops;
-	uint8_t buf[20];
+	uint32_t node_id = 2001;
 
-	int count = 0;
+	struct rf24 *nrf = &nrf24_ops;
+	uint8_t buf[32];
+
+	node_sensor_list message = node_sensor_list_init_default;
+	pb_ostream_t stream;
+	bool pb_status;
+	size_t pb_len;
+
 	int ret;
 
 	rcc_clock_setup_in_hsi_out_48mhz();
@@ -172,7 +219,7 @@ int main(void)
 
 	printf("radio setup...\r\n");
 	rf24_stop_listening(nrf);
-	rf24_set_payload_size(nrf, sizeof(buf));
+	rf24_enable_dynamic_payloads(nrf);
 	rf24_set_retries(nrf, 0xf /* retry delay 4000us */, 5 /* retries */);
 	rf24_open_writing_pipe(nrf, addr);
 	rf24_power_up(nrf);
@@ -180,15 +227,32 @@ int main(void)
 	printf("start xmit cycle...\r\n");
 	while (1) {
 
+		printf("xmit pkt #%u\n", (unsigned int)++count);
 		memset(buf, 0x0, sizeof(buf));
-		sprintf((char *) buf, "xmit 0x%04x", count++);
-		printf("xmit buffer: sizeof(%s) = %d\r\n", buf, sizeof(buf));
+		stream = pb_ostream_from_buffer(buf, sizeof(buf));
 
-		ret = rf24_write(nrf, buf, sizeof(buf));
+		/* static message part */
+		message.node.node = node_id;
+
+		/* repeated message part */
+		message.sensor.funcs.encode = &sensor_encode_callback;
+
+		pb_status = pb_encode(&stream, node_sensor_list_fields, &message);
+		pb_len = stream.bytes_written;
+
+		if (!pb_status) {
+			printf("nanopb encoding failed: %s\n", PB_GET_ERROR(&stream));
+		} else {
+			printf("nanopb encoded %u bytes\n", pb_len);
+		}
+
+		ret = rf24_write(nrf, buf, pb_len);
 		if (ret) {
 			printf("write error: %d\n", ret);
 			rf24_flush_tx(nrf);
 			rf24_flush_rx(nrf);
+		} else {
+			printf("written %d bytes\n", pb_len);
 		}
 
 		gpio_toggle(GPIOA, GPIO4);

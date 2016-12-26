@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+message node_data {
+	required uint32 node = 1;
+}
+
+message sensor_data {
+	required uint32 type = 1;
+	required uint32 data = 2;
+}
+
+
+message node_sensor_list {
+	required node_data node = 1;
+	repeated sensor_data sensor = 2;
+}

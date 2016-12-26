@@ -23,7 +23,7 @@ CHIP = stm32f0
 LIBCM3_TARGET	= stm32/f0
 LIBCM3_FPFLAGS	= -msoft-float
 
-deps: libopencm3 libnrf24
+deps: libopencm3 libnrf24 nanopb
 
 ## platform-specific compile flags
 
