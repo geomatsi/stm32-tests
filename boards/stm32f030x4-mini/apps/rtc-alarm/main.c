@@ -23,6 +23,8 @@
 
 #include <libopencm3/cm3/nvic.h>
 
+#include "rtc-utils.h"
+
 static void gpio_setup(void)
 {
 	/* LED pin */
@@ -30,66 +32,36 @@ static void gpio_setup(void)
 }
 
 /* set next alarm: current time + min:sec */
-void rtc_set_alarm_time(int min, int sec)
+void configure_next_alarm(int min, int sec)
 {
-	uint32_t reg;
-	int mu, mt;
-	int su, st;
+	struct rtc_alarm alarm = {};
+	struct rtc_time time = {};
+	int val;
 
-	rtc_unlock();
+	/* read current min/sec values */
+	rtc_read_calendar(&time, 0);
 
-	/* step 0: read current min/sec values in BCD format */
-	RTC_ISR &= ~(RTC_ISR_RSF);
-	while (!(RTC_ISR & RTC_ISR_RSF));
+	/* BCD min/sec math: calculate next alarm */
+	val = time.su + sec;
+	alarm.su = val % 10;
 
-	reg = RTC_TR;
+	val = time.st + val / 10;
+	alarm.st = val % 6;
 
-	mt = (reg >> RTC_TR_MNT_SHIFT) & RTC_TR_MNT_MASK;
-	mu = (reg >> RTC_TR_MNU_SHIFT) & RTC_TR_MNU_MASK;
+	val = time.mnu + min + val / 6;
+	alarm.mnu = val % 10;
 
-	st = (reg >> RTC_TR_ST_SHIFT) & RTC_TR_ST_MASK;
-	su = (reg >> RTC_TR_SU_SHIFT) & RTC_TR_SU_MASK;
+	val = time.mnt + val / 10;
+	alarm.mnt = val % 6;
 
-	/* need to read date as well even if no need to use it */
-	reg = RTC_DR;
+	/* this app cares about min/sec only */
+	alarm.msk1 = 0;
+	alarm.msk2 = 0;
+	alarm.msk3 = 1;
+	alarm.msk4 = 1;
 
-	/* step 1: disable alarm A to modify it */
-	RTC_CR &= ~RTC_CR_ALRAE;
-
-	/* step 2: wait until it is allowed to modify alarm A settings */
-	while (!(RTC_ISR & RTC_ISR_ALRAWF));
-
-	/* step 3: program next alarm event */
-
-	/* bcd min/sec math: calculate next alarm time */
-	su += sec;
-
-	st += su/10;
-	su %= 10;
-
-	mu += min + st/6;
-	st %= 6;
-
-	mt += mu / 10;
-	mu %= 10;
-
-	/* hu += mt/6 : for this test app we don't care about hours */
-	mt %= 6;
-
-	/* for this test app we don't care about date/hours match */
-	reg = RTC_ALRMXR_MSK4 | RTC_ALRMXR_MSK3;
-
-	reg |= (mt & RTC_TR_MNT_MASK) << RTC_TR_MNT_SHIFT;
-	reg |= (mu & RTC_TR_MNU_MASK) << RTC_TR_MNU_SHIFT;
-	reg |= (st & RTC_TR_ST_MASK) << RTC_TR_ST_SHIFT;
-	reg |= (su & RTC_TR_SU_MASK) << RTC_TR_SU_SHIFT;
-
-	RTC_ALRMAR = reg;
-
-	/* step4: enable alarm A and its interrupt */
-	RTC_CR |= RTC_CR_ALRAIE | RTC_CR_ALRAE;
-
-	rtc_lock();
+	/* set new alarm */
+	rtc_set_alarm(&alarm);
 }
 
 void rtc_isr(void)
@@ -97,18 +69,23 @@ void rtc_isr(void)
 	rtc_clear_alarm_flag();
 	exti_reset_request(EXTI17);
 	gpio_toggle(GPIOA, GPIO4);
-	rtc_set_alarm_time(0, 15);
+	configure_next_alarm(0, 30);
 }
 
 void rtc_setup(void)
 {
+	/* reset RTC */
+	rcc_periph_reset_pulse(RST_BACKUPDOMAIN);
+
 	/* enable LSI clock */
 	rcc_osc_on(RCC_LSI);
 	rcc_wait_for_osc_ready(RCC_LSI);
 
 	/* select LSI clock for RTC */
+	rtc_unlock();
 	rcc_set_rtc_clock_source(RCC_LSI);
 	rcc_enable_rtc_clock();
+	rtc_lock();
 }
 
 int main(void)
@@ -133,7 +110,7 @@ int main(void)
 	exti_set_trigger(EXTI17, EXTI_TRIGGER_RISING);
 	exti_enable_request(EXTI17);
 
-	rtc_set_alarm_time(0, 5);
+	configure_next_alarm(0, 3);
 
 	while (1);
 

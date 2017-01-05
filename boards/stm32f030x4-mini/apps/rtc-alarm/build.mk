@@ -12,7 +12,7 @@ VPATH += $(PRJ_DIR)/boards/$(PLAT)/apps/rtc-alarm
 
 APP_SRCS :=	\
 	main.c	\
-	printf.c
+	rtc.c
 
 APP_OBJS := $(APP_SRCS:.c=.o)
 APP_OBJS := $(addprefix $(OBJ_DIR)/,$(APP_OBJS))
