@@ -46,6 +46,7 @@ TARGETS = "			\
 	spi-nrf24-node		\
 	hse-led			\
 	rtc-alarm		\
+	lpm-rtc-wkup		\
 	adc-test"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
@@ -86,6 +87,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), rtc-alarm)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/rtc-alarm/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), lpm-rtc-wkup)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/lpm-rtc-wkup/build.mk
 endif
 
 ifeq ($(MAKECMDGOALS), adc-test)
