@@ -179,7 +179,6 @@ void delay_us(int delay)
 	 * However libnrf24 is not very demanding to those timings.
 	 * That is why this workaround: wait a little longer...
 	 */
-
 	delay_ms(1);
 }
 
@@ -201,7 +200,7 @@ int main(void)
 	enum rf24_tx_status ret;
 
 	rcc_clock_setup_in_hsi_out_48mhz();
-	systick_setup_mhz(24);
+	systick_setup_mhz(48);
 
 	rcc_setup();
 	pinmux_setup();
