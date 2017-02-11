@@ -38,7 +38,7 @@ LIBCM3			= $(CM3_LIB_DIR)/lib/libopencm3_$(CHIP).a
 
 NRF24_LIB_DIR	= libnrf24
 LIBNRF24_INC	= -I$(NRF24_LIB_DIR)/include
-LIBNRF24		= $(NRF24_LIB_DIR)/libnrf24_$(CHIP).a
+LIBNRF24	= $(NRF24_LIB_DIR)/libnrf24_$(CHIP).a
 
 # libstlinky
 
@@ -59,7 +59,7 @@ include $(PRJ_DIR)/boards/$(PLAT)/platform.mk
 
 libnrf24:
 	make -C libnrf24 \
-		CROSS_COMPILE=$(CROSS_COMPILE)	\
+		CROSS_COMPILE=$(CROSS_COMPILE)- \
 		TARGET=$(CHIP) \
 		PLT_FLAGS="$(PFLAGS)" \
 		CFG_FLAGS="$(NRF24_CFG_FLAGS)"

@@ -160,11 +160,6 @@ void f_ce(int level)
 	(level > 0) ? gpio_set(GPIOA, GPIO0) : gpio_clear(GPIOA, GPIO0);
 }
 
-void f_spi_set_speed(int khz)
-{
-	/* not implemented */
-}
-
 uint8_t f_spi_xfer(uint8_t dat)
 {
 	spi_send8(SPI1, dat);
@@ -174,7 +169,6 @@ uint8_t f_spi_xfer(uint8_t dat)
 struct rf24 nrf24_ops = {
 	.csn = f_csn,
 	.ce = f_ce,
-	.spi_set_speed = f_spi_set_speed,
 	.spi_xfer = f_spi_xfer,
 };
 
@@ -204,10 +198,10 @@ int main(void)
 	bool pb_status;
 	size_t pb_len;
 
-	int ret;
+	enum rf24_tx_status ret;
 
 	rcc_clock_setup_in_hsi_out_48mhz();
-	systick_setup_mhz(48);
+	systick_setup_mhz(24);
 
 	rcc_setup();
 	pinmux_setup();
@@ -218,11 +212,10 @@ int main(void)
 	rf24_init(&nrf24_ops);
 
 	printf("radio setup...\r\n");
-	rf24_stop_listening(nrf);
-	rf24_enable_dynamic_payloads(nrf);
+	rf24_enable_dyn_payload(nrf);
 	rf24_set_retries(nrf, 0xf /* retry delay 4000us */, 5 /* retries */);
-	rf24_open_writing_pipe(nrf, addr);
-	rf24_power_up(nrf);
+	rf24_setup_ptx(nrf, addr);
+	rf24_start_ptx(nrf);
 
 	printf("start xmit cycle...\r\n");
 	while (1) {
@@ -246,9 +239,9 @@ int main(void)
 			printf("nanopb encoded %u bytes\n", pb_len);
 		}
 
-		ret = rf24_write(nrf, buf, pb_len);
-		if (ret) {
-			printf("write error: %d\n", ret);
+		ret = rf24_send(nrf, buf, pb_len);
+		if (ret != RF24_TX_OK) {
+			printf("send error: %d\n", ret);
 			rf24_flush_tx(nrf);
 			rf24_flush_rx(nrf);
 		} else {
@@ -256,7 +249,7 @@ int main(void)
 		}
 
 		gpio_toggle(GPIOA, GPIO4);
-		delay_ms(1000);
+		delay_ms(5000);
 	}
 
 	return 0;
