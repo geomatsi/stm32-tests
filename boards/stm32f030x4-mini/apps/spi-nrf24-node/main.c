@@ -213,6 +213,11 @@ int main(void)
 	printf("radio setup...\r\n");
 	rf24_enable_dyn_payload(nrf);
 	rf24_set_retries(nrf, 0xf /* retry delay 4000us */, 5 /* retries */);
+	rf24_set_channel(nrf, 10);
+	rf24_set_data_rate(nrf, RF24_RATE_250K);
+	rf24_set_crc_mode(nrf, RF24_CRC_16_BITS);
+	rf24_set_pa_level(nrf, RF24_PA_MAX);
+
 	rf24_setup_ptx(nrf, addr);
 	rf24_start_ptx(nrf);
 
