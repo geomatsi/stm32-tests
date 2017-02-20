@@ -127,7 +127,7 @@ static void pinmux_setup(void)
 
 	/* NRF24: CS pin */
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO1);
-	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO0);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO1);
 }
 
 static void spi_setup(void)
