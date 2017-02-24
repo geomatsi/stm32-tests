@@ -24,7 +24,7 @@ info:
 	@echo "ARCH = $(ARCH)"
 	@echo "PLAT = $(PLAT)"
 	@echo "CHIP = $(CHIP)"
-	@echo "BUILD TARGETS = $(TARGETS)"
+	@echo "APPS: $(TARGETS)" | sed -e 's/\s\+/\n\t/g'
 
 ## dependencies
 
