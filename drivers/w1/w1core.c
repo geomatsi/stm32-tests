@@ -30,7 +30,7 @@ int w1_init_transaction(void)
 	val = GET_PIN_VALUE();
 	delay_us(520);
 
-	return val ? 1 : 0;
+	return val ? 0 : 1;
 }
 
 /* send 1wire data to device */

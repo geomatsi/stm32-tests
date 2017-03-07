@@ -55,6 +55,7 @@ static void gpio_setup(void)
 {
 	/* PB1: w1 pin */
 	gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1);
+	gpio_set_output_options(GPIOB, GPIO_OTYPE_OD, GPIO_OSPEED_LOW,  GPIO1);
 
 	/* PA4: LED */
 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
@@ -66,47 +67,50 @@ static void gpio_setup(void)
 
 static void nvic_setup(void)
 {
-	/* TIM3 interrupt */
-	nvic_enable_irq(NVIC_TIM3_IRQ);
-	nvic_set_priority(NVIC_TIM3_IRQ, 1);
+	/* TIM14 interrupt */
+	nvic_enable_irq(NVIC_TIM14_IRQ);
+	nvic_set_priority(NVIC_TIM14_IRQ, 1);
 }
 
-static volatile uint32_t ready = 0;
+volatile uint32_t ready = 0;
 
-void tim3_isr(void)
+void tim14_isr(void)
 {
 	ready = 1;
 
 	/* clear interrrupt flag */
-	TIM_SR(TIM3) &= ~TIM_SR_UIF;
+	TIM_SR(TIM14) &= ~TIM_SR_UIF;
 
 	/* stop counter */
-	TIM_CR1(TIM3) &= ~TIM_CR1_CEN;
+	TIM_CR1(TIM14) &= ~TIM_CR1_CEN;
 }
 
-void tim3_prepare(uint16_t psc, uint16_t arr)
+void tim_prepare(uint16_t psc, uint16_t arr)
 {
 	/*
-	 * TIM3: simple upcouning mode
+	 * TIM14: simple upcouning mode
 	 */
 
 	/* set timer start value */
-	TIM_CNT(TIM3) = 1;
+	TIM_CNT(TIM14) = 0;
 
 	/* set timer prescaler
-	 *   - TIM_PSC = 48 : 48_000_000 Hz / 48 = 1_000_000 ticks per second
+	 *   - TIM_PSC = (48 - 1) : 48_000_000 Hz / 48 = 1_000_000 ticks per second
 	 *   - TIM_ARR = N : irq is generated after N usecs
 	 */
-	TIM_PSC(TIM3) = psc;
+	TIM_PSC(TIM14) = psc;
 
 	/* end timer value:  this is reached =>  interrupt is generated */
-	TIM_ARR(TIM3) = arr;
+	TIM_ARR(TIM14) = arr;
 
 	/* update interrupt enable */
-	TIM_DIER(TIM3) |= TIM_DIER_UIE;
+	TIM_DIER(TIM14) = TIM_DIER_UIE;
 
 	/* start counter */
-	TIM_CR1(TIM3) |= TIM_CR1_CEN;
+	TIM_CR1(TIM14) = TIM_CR1_URS | TIM_CR1_CEN;
+
+	/* force update generation */
+	TIM_EGR(TIM14) = TIM_EGR_UG;
 }
 
 /* FIXME:
@@ -117,14 +121,14 @@ void tim3_prepare(uint16_t psc, uint16_t arr)
 void delay_ms(int msec)
 {
 	ready = 0;
-	tim3_prepare(48000, msec);
+	tim_prepare(48000 - 1, (uint16_t)msec);
 	while(!ready);
 }
 
 void delay_us(int usec)
 {
 	ready = 0;
-	tim3_prepare(48, usec);
+	tim_prepare(48 - 1, (uint16_t)usec);
 	while(!ready);
 }
 
@@ -133,29 +137,17 @@ int main(void)
 	uint8_t data[9];
 	uint8_t i;
 	int temp;
-	int ret;
 
 	rcc_clock_setup_in_hsi_out_48mhz();
 
 	rcc_periph_clock_enable(RCC_USART1);
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOB);
-	rcc_periph_clock_enable(RCC_TIM3);
+	rcc_periph_clock_enable(RCC_TIM14);
 
 	gpio_setup();
 	usart_setup();
 	nvic_setup();
-
-#if 0
-	while (1) {
-		gpio_toggle(GPIOA, GPIO4);
-		printf("OK\n\r");
-
-		delay_ms(1000);
-	}
-#else
-
-	/* w1 example */
 
 	if (!ds18b20_set_res(R12BIT)) {
 		printf("WARN: couldn't set resolution\n");
@@ -166,8 +158,7 @@ int main(void)
 	while (1) {
 
 		/* reset and check presence */
-		ret = w1_init_transaction();
-		if (!ret) {
+		if (!w1_init_transaction()) {
 			printf("presence not detected...\n\r");
 			delay_ms(1000);
 			continue;
@@ -185,8 +176,7 @@ int main(void)
 		delay_ms(1000);
 
 		/* reset and check presence */
-		ret = w1_init_transaction();
-		if (!ret) {
+		if (!w1_init_transaction()) {
 			printf("presence after conversion not detected...\n\r");
 			delay_ms(2000);
 			continue;
@@ -223,5 +213,4 @@ int main(void)
 		/* wait before starting next cycle */
 		delay_ms(1000);
 	}
-#endif
 }

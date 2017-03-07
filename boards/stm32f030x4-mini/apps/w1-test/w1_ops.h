@@ -17,6 +17,6 @@
 		gpio_clear(GPIOB, GPIO1);	\
 	} while (0)
 
-#define GET_PIN_VALUE()	gpio_get(GPIOB, GPIO1)
+#define GET_PIN_VALUE()	(gpio_get(GPIOB, GPIO1) ? 1 : 0)
 
 #endif /* __W1_OPS_H__ */
