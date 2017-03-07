@@ -48,7 +48,8 @@ TARGETS = "			\
 	rtc-alarm		\
 	lpm-rtc-wkup		\
 	tim-input-capture	\
-	adc-test"
+	adc-test		\
+	w1-test"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -100,6 +101,10 @@ endif
 
 ifeq ($(MAKECMDGOALS), tim-input-capture)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/tim-input-capture/build.mk
+endif
+
+ifeq ($(MAKECMDGOALS), w1-test)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/w1-test/build.mk
 endif
 
 ## platform-specific flash rules
