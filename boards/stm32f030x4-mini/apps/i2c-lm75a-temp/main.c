@@ -143,6 +143,7 @@ static void i2c_100khz_i2cclk48mhz(uint32_t i2c)
 int main(void)
 {
 	uint8_t lm75_addr = 0x48;
+	uint8_t temp_reg = 0x0;
 	uint8_t data[2];
 	int t, c = 0;
 
@@ -165,7 +166,7 @@ int main(void)
 	while (1) {
 
 		/* read temperature: 2 bytes */
-		read_i2c(I2C1, lm75_addr, 0x0, 2, data);
+		i2c_transfer7(I2C1, lm75_addr, &temp_reg, 1, data, 2);
 
 		gpio_toggle(GPIOA, GPIO4);
 
