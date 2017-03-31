@@ -33,8 +33,8 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	rcc_clock_setup_in_hse_8mhz_out_32mhz();
-	systick_setup_mhz(32);
+	rcc_clock_setup_in_hse_8mhz_out_48mhz();
+	systick_setup_mhz(48);
 
 	gpio_setup();
 	gpio_set(GPIOA, GPIO4);

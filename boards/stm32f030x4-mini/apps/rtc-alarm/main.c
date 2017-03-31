@@ -90,7 +90,7 @@ void rtc_setup(void)
 
 int main(void)
 {
-	rcc_clock_setup_in_hsi_out_24mhz();
+	rcc_clock_setup_in_hsi_out_48mhz();
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_RTC);
