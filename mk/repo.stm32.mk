@@ -8,7 +8,7 @@ ARCH	= arm
 #PLAT	= stm32f4-nucleo
 #PLAT	= stm32f4-discovery
 #PLAT	= stm32f103-mini
-PLAT	= stm32f030x4-mini
+PLAT	= stm32f030r8-nucleo
 
 # project and output directories
 
