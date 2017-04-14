@@ -25,8 +25,8 @@
 
 static void gpio_setup(void)
 {
-	/* PA4: setup output pin to control LED */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	/* PA5: setup output pin to control LED */
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 }
 
 static void nvic_setup(void)
@@ -39,7 +39,7 @@ static void nvic_setup(void)
 void tim3_isr(void)
 {
 	/* LED toggle */
-	gpio_toggle(GPIOA, GPIO4);
+	gpio_toggle(GPIOA, GPIO5);
 
 	/* clear interrrupt flag */
 	TIM_SR(TIM3) &= ~TIM_SR_UIF;

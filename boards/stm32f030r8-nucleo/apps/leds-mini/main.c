@@ -25,7 +25,7 @@
 static void gpio_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOA);
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 }
 
 int main(void)
@@ -40,7 +40,7 @@ int main(void)
 			__asm__("nop");
 		}
 
-		gpio_toggle(GPIOA, GPIO4);
+		gpio_toggle(GPIOA, GPIO5);
 	}
 
 	return 0;
