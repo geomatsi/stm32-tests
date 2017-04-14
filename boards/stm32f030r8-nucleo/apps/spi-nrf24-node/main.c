@@ -77,31 +77,32 @@ bool sensor_encode_callback(pb_ostream_t *stream, const pb_field_t *field, void 
 int putchar(int c)
 {
 	uint8_t ch = (uint8_t)c;
-	usart_send_blocking(USART1, ch);
+	usart_send_blocking(USART2, ch);
 	return 0;
 }
 
 static void usart_setup(void)
 {
-	/* setup USART1 parameters */
-	usart_set_baudrate(USART1, 115200);
-	usart_set_databits(USART1, 8);
-	usart_set_parity(USART1, USART_PARITY_NONE);
-	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);
-	usart_set_mode(USART1, USART_MODE_TX);
-	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
+	/* setup USART2 parameters */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_stopbits(USART2, USART_CR2_STOP_1_0BIT);
+	usart_set_mode(USART2, USART_MODE_TX);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-	/* enable USART1 */
-	usart_enable(USART1);
+	/* enable USART2 */
+	usart_enable(USART2);
 }
 
 static void rcc_setup(void)
 {
-	/* enable GPIOA clock for LED and UART */
+	/* enable GPIO clock for LED/UART/SPI */
 	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOC);
 
-	/* enable clocks for USART1 */
-	rcc_periph_clock_enable(RCC_USART1);
+	/* enable clocks for USART2 */
+	rcc_periph_clock_enable(RCC_USART2);
 
 	/* enable clocks for SPI1 */
 	rcc_periph_clock_enable(RCC_SPI1);
@@ -109,10 +110,14 @@ static void rcc_setup(void)
 
 static void pinmux_setup(void)
 {
-	/* LED pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	/* disable RFM69HW on Wireless Shield v1.0 which is on the same spi */
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO7);
+	gpio_set(GPIOC, GPIO7);
 
-	/* USART1 pins */
+	/* LED pin */
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
+
+	/* USART2 pins */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
 	gpio_set_af(GPIOA, GPIO_AF1, GPIO2 | GPIO3);
 
@@ -122,12 +127,19 @@ static void pinmux_setup(void)
 	gpio_set_af(GPIOA, GPIO_AF0, GPIO5 | GPIO6 | GPIO7);
 
 	/* NRF24: CE pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO0);
-	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO0);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO8);
 
 	/* NRF24: CS pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO1);
-	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO1);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO9);
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,  GPIO9);
+
+	/* NRF24: IRQ pin */
+	gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO10);
+
+	/* start with spi communication disabled */
+	gpio_set(GPIOA, GPIO9);
+	gpio_clear(GPIOA, GPIO8);
 }
 
 static void spi_setup(void)
@@ -152,12 +164,12 @@ static void spi_setup(void)
 
 void f_csn(int level)
 {
-	(level > 0) ? gpio_set(GPIOA, GPIO1) : gpio_clear(GPIOA, GPIO1);
+	(level > 0) ? gpio_set(GPIOA, GPIO9) : gpio_clear(GPIOA, GPIO9);
 }
 
 void f_ce(int level)
 {
-	(level > 0) ? gpio_set(GPIOA, GPIO0) : gpio_clear(GPIOA, GPIO0);
+	(level > 0) ? gpio_set(GPIOA, GPIO8) : gpio_clear(GPIOA, GPIO8);
 }
 
 uint8_t f_spi_xfer(uint8_t dat)
@@ -186,7 +198,7 @@ void delay_us(int delay)
 
 int main(void)
 {
-	uint8_t addr[] = {'E', 'F', 'C', 'L', 'I'};
+	uint8_t addr[] = {0xE1, 0xE1, 0xE1, 0xE1, 0xE1};
 	uint32_t node_id = 2001;
 
 	struct rf24 *nrf = &nrf24_ops;
@@ -216,7 +228,7 @@ int main(void)
 	rf24_set_channel(nrf, 10);
 	rf24_set_data_rate(nrf, RF24_RATE_250K);
 	rf24_set_crc_mode(nrf, RF24_CRC_16_BITS);
-	rf24_set_pa_level(nrf, RF24_PA_MAX);
+	rf24_set_pa_level(nrf, RF24_PA_MIN);
 
 	rf24_setup_ptx(nrf, addr);
 	rf24_start_ptx(nrf);
@@ -252,7 +264,7 @@ int main(void)
 			printf("written %d bytes\n", pb_len);
 		}
 
-		gpio_toggle(GPIOA, GPIO4);
+		gpio_toggle(GPIOA, GPIO5);
 		delay_ms(5000);
 	}
 
