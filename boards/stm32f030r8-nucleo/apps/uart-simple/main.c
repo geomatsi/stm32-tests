@@ -30,30 +30,30 @@ static void clock_setup(void)
 	/* enable GPIOA clock for LED and UART */
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	/* enable clocks for USART1 */
-	rcc_periph_clock_enable(RCC_USART1);
+	/* enable clocks for USART2 */
+	rcc_periph_clock_enable(RCC_USART2);
 }
 
 static void usart_setup(void)
 {
-	/* setup USART1 parameters */
-	usart_set_baudrate(USART1, 115200);
-	usart_set_databits(USART1, 8);
-	usart_set_parity(USART1, USART_PARITY_NONE);
-	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);
-	usart_set_mode(USART1, USART_MODE_TX);
-	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
+	/* setup USART2 parameters */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_stopbits(USART2, USART_CR2_STOP_1_0BIT);
+	usart_set_mode(USART2, USART_MODE_TX);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-	/* enable USART1 */
-	usart_enable(USART1);
+	/* enable USART2 */
+	usart_enable(USART2);
 }
 
 static void gpio_setup(void)
 {
 	/* LED pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 
-	/* USART1 pins */
+	/* USART2 pins */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
 	gpio_set_af(GPIOA, GPIO_AF1, GPIO2 | GPIO3);
 }
@@ -68,12 +68,12 @@ int main(void)
 
 	/* blink the LED PA4 on the board with every transmitted byte */
 	while (1) {
-		gpio_toggle(GPIOA, GPIO4);
-		usart_send_blocking(USART1, c + '0');
+		gpio_toggle(GPIOA, GPIO5);
+		usart_send_blocking(USART2, c + '0');
 		c = (c == 9) ? 0 : c + 1;
 		if ((j++ % 80) == 0) {
-			usart_send_blocking(USART1, '\r');
-			usart_send_blocking(USART1, '\n');
+			usart_send_blocking(USART2, '\r');
+			usart_send_blocking(USART2, '\n');
 		}
 
 		for (i = 0; i < 1000000; i++) {
