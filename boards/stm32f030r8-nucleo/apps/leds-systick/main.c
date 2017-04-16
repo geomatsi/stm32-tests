@@ -28,7 +28,7 @@
 static void gpio_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOA);
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 }
 
 int main(void)
@@ -37,10 +37,10 @@ int main(void)
 	systick_setup_mhz(48);
 	gpio_setup();
 
-	gpio_set(GPIOA, GPIO4);
+	gpio_set(GPIOA, GPIO5);
 
 	while (1) {
-		gpio_toggle(GPIOA, GPIO4);
+		gpio_toggle(GPIOA, GPIO5);
 		delay_ms(500);
 	}
 
