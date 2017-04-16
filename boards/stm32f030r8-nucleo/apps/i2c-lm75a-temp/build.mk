@@ -1,5 +1,5 @@
 #
-# example: custom basic printf implementation
+# example: i2c communication with LM75A temperature sensor
 #
 
 ## paths

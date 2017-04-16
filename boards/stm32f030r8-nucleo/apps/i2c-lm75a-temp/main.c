@@ -32,22 +32,22 @@ extern int printf(const char *format, ...);
 int putchar(int c)
 {
 	uint8_t ch = (uint8_t)c;
-	usart_send_blocking(USART1, ch);
+	usart_send_blocking(USART2, ch);
 	return 0;
 }
 
 static void usart_setup(void)
 {
-	/* setup USART1 parameters */
-	usart_set_baudrate(USART1, 115200);
-	usart_set_databits(USART1, 8);
-	usart_set_parity(USART1, USART_PARITY_NONE);
-	usart_set_stopbits(USART1, USART_CR2_STOP_1_0BIT);
-	usart_set_mode(USART1, USART_MODE_TX);
-	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
+	/* setup USART2 parameters */
+	usart_set_baudrate(USART2, 115200);
+	usart_set_databits(USART2, 8);
+	usart_set_parity(USART2, USART_PARITY_NONE);
+	usart_set_stopbits(USART2, USART_CR2_STOP_1_0BIT);
+	usart_set_mode(USART2, USART_MODE_TX);
+	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
 
-	/* enable USART1 */
-	usart_enable(USART1);
+	/* enable USART2 */
+	usart_enable(USART2);
 }
 
 static void rcc_setup(void)
@@ -56,9 +56,10 @@ static void rcc_setup(void)
 
 	/* enable GPIOA clock for LED and UART */
 	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
-	/* enable clocks for USART1 */
-	rcc_periph_clock_enable(RCC_USART1);
+	/* enable clocks for USART2 */
+	rcc_periph_clock_enable(RCC_USART2);
 
 	/* enable clocks for I2C1 */
 	rcc_periph_clock_enable(RCC_I2C1);
@@ -67,15 +68,15 @@ static void rcc_setup(void)
 static void gpio_setup(void)
 {
 	/* LED pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 
-	/* USART1 pins */
+	/* USART2 pins */
 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO2 | GPIO3);
 	gpio_set_af(GPIOA, GPIO_AF1, GPIO2 | GPIO3);
 
 	/* I2C1 pins */
-	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
-	gpio_set_af(GPIOA, GPIO_AF4, GPIO9 | GPIO10);
+	gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO8 | GPIO9);
+	gpio_set_af(GPIOB, GPIO_AF1, GPIO8 | GPIO9);
 }
 
 /*
@@ -168,7 +169,7 @@ int main(void)
 		/* read temperature: 2 bytes */
 		i2c_transfer7(I2C1, lm75_addr, &temp_reg, 1, data, 2);
 
-		gpio_toggle(GPIOA, GPIO4);
+		gpio_toggle(GPIOA, GPIO5);
 
 		/* FIXME: add support for negative temperatures */
 		t = (data[0] << 3) + (data[1] >> 5);
