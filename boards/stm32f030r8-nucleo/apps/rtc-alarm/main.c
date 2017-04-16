@@ -28,7 +28,7 @@
 static void gpio_setup(void)
 {
 	/* LED pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 }
 
 /* set next alarm: current time + min:sec */
@@ -68,8 +68,8 @@ void rtc_isr(void)
 {
 	rtc_clear_alarm_flag();
 	exti_reset_request(EXTI17);
-	gpio_toggle(GPIOA, GPIO4);
-	configure_next_alarm(0, 30);
+	gpio_toggle(GPIOA, GPIO5);
+	configure_next_alarm(0, 10);
 }
 
 void rtc_setup(void)

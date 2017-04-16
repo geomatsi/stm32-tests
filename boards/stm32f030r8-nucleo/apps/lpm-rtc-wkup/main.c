@@ -39,7 +39,7 @@ static inline __attribute__((always_inline)) void __NOP(void)
 static void gpio_setup(void)
 {
 	/* LED pin */
-	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
+	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO5);
 }
 
 static void blink(int c)
@@ -48,13 +48,13 @@ static void blink(int c)
 
 	for (i = 0; i < c; i++) {
 
-		gpio_set(GPIOA, GPIO4);
-		for (j = 0; j < 100000; j++) {
+		gpio_set(GPIOA, GPIO5);
+		for (j = 0; j < 500000; j++) {
 			__NOP();
 		}
 
-		gpio_clear(GPIOA, GPIO4);
-		for (j = 0; j < 100000; j++) {
+		gpio_clear(GPIOA, GPIO5);
+		for (j = 0; j < 500000; j++) {
 			__NOP();
 		}
 	}
