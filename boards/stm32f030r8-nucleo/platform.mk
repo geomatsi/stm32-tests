@@ -20,6 +20,8 @@ CHIP = stm32f0
 
 ## platform dependencies
 
+NRF24_CFG_FLAGS = -DSPI_SINGLE_BYTE
+
 LIBCM3_TARGET	= stm32/f0
 LIBCM3_FPFLAGS	= -msoft-float
 

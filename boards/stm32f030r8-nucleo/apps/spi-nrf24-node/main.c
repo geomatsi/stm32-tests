@@ -178,21 +178,25 @@ uint8_t f_spi_xfer(uint8_t dat)
 	return spi_read8(SPI1);
 }
 
-struct rf24 nrf24_ops = {
-	.csn = f_csn,
-	.ce = f_ce,
-	.spi_xfer = f_spi_xfer,
-};
-
 void delay_us(int delay)
 {
 	/*
 	 * This function is needed by libnrf24: 10us, 130us, 1500us delays.
 	 * However libnrf24 is not very demanding to those timings.
 	 * That is why this workaround: wait a little longer...
+	 *
+	 * FIXME: add TIM based usec delay implementation
 	 */
 	delay_ms(1);
 }
+
+struct rf24 nrf24_ops = {
+	.delay_us	= delay_us,
+	.delay_ms	= delay_ms,
+	.csn		= f_csn,
+	.ce		= f_ce,
+	.spi_xfer	= f_spi_xfer,
+};
 
 /* */
 
