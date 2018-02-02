@@ -52,7 +52,8 @@ TARGETS = "			\
 	tim-input-capture	\
 	adc-test		\
 	w1-test			\
-	iwdg-test"
+	iwdg-test		\
+	freertos-test"
 
 ifeq ($(MAKECMDGOALS), leds-mini)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/leds-mini/build.mk
@@ -114,10 +115,20 @@ ifeq ($(MAKECMDGOALS), iwdg-test)
 include $(PRJ_DIR)/boards/$(PLAT)/apps/iwdg-test/build.mk
 endif
 
-## platform-specific flash rules
+ifeq ($(MAKECMDGOALS), freertos-test)
+include $(PRJ_DIR)/boards/$(PLAT)/apps/freertos-test/build.mk
+endif
+
+## platform-specific flash/debug rules
 
 upload:
-	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'program ()'
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'program ()'
 
 debug:
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-stlink.cfg -c 'attach ()'
+
+upload-swd:
+	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'program ()'
+
+debug-swd:
 	openocd -f $(PRJ_DIR)/boards/$(PLAT)/scripts/openocd-jlink-swd.cfg -c 'attach ()'
